@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register — Itjareng VTC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --royal:#1a3a6b;--royal-deep:#0d2347;--royal-dark:#071529;
+      --royal-mid:#1e4d8c;--royal-light:#2563b8;--royal-bright:#3b82f6;
+      --gold:#c9a84c;--gold-light:#e8c97a;--gold-pale:#f5e4b0;
+      --green:#16a34a;--red:#dc2626;--white:#f0f4ff;--white-muted:#b8c9e8;
+      --text:#e8f0ff;--text-sub:#98b4d4;
+      --glass:rgba(26,58,107,0.35);--glass-b:rgba(201,168,76,0.22);
+      --card:rgba(13,35,71,0.85);--border:rgba(201,168,76,0.18);
+      --shadow:0 8px 40px rgba(0,0,0,0.45);
+      --shadow-gold:0 4px 24px rgba(201,168,76,0.35);
+      --tr:all 0.32s cubic-bezier(0.4,0,0.2,1);
+      --ff-display:'Cinzel',serif;--ff-body:'Raleway',sans-serif;
+      --radius:12px;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{
+      font-family:var(--ff-body);background:var(--royal-dark);color:var(--text);
+      min-height:100vh;display:flex;align-items:center;justify-content:center;
+      padding:2rem;position:relative;overflow-x:hidden;
+    }
+    canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none;}
+    .auth-wrap{position:relative;z-index:2;width:100%;max-width:500px;}
+    .auth-logo{text-align:center;margin-bottom:2rem;}
+    .logo-box{
+      width:64px;height:64px;
+      background:linear-gradient(135deg,var(--gold),var(--royal-light));
+      border-radius:14px;display:inline-flex;align-items:center;justify-content:center;
+      font-family:var(--ff-display);font-weight:900;font-size:1rem;
+      color:var(--royal-dark);letter-spacing:0.05em;
+      box-shadow:var(--shadow-gold);line-height:1.1;text-align:center;margin-bottom:1rem;
+    }
+    .auth-logo h1{
+      font-family:var(--ff-display);font-size:1.5rem;
+      background:linear-gradient(135deg,#fff,var(--gold-light));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    }
+    .auth-logo p{color:var(--text-sub);font-size:0.82rem;margin-top:0.3rem;}
+    .auth-card{
+      background:var(--card);border:1px solid var(--border);
+      border-radius:20px;padding:2.5rem;
+      backdrop-filter:blur(20px);box-shadow:var(--shadow);
+    }
+    .auth-card h2{font-family:var(--ff-display);font-size:1.15rem;color:var(--gold-light);margin-bottom:0.4rem;}
+    .auth-card .sub{color:var(--text-sub);font-size:0.82rem;margin-bottom:2rem;}
+    .fg{margin-bottom:1.1rem;display:flex;flex-direction:column;}
+    .fg label{font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-sub);margin-bottom:0.4rem;}
+    .fg input,.fg select{
+      background:rgba(7,21,41,0.9);border:1.5px solid var(--border);
+      border-radius:8px;padding:0.75rem 1rem;
+      color:var(--text);font-family:var(--ff-body);font-size:0.88rem;
+      transition:var(--tr);width:100%;outline:none;
+    }
+    .fg input:focus,.fg select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,0.14);}
+    .fg select option{background:var(--royal-deep);color:var(--text);}
+    .fg .hint{font-size:0.7rem;color:var(--text-sub);margin-top:0.3rem;opacity:0.75;}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:0.85rem;}
+    .btn-auth{
+      width:100%;padding:0.85rem;border:none;border-radius:8px;
+      background:linear-gradient(135deg,var(--gold),var(--gold-light));
+      color:var(--royal-dark);font-family:var(--ff-display);
+      font-size:0.85rem;font-weight:700;letter-spacing:0.08em;
+      cursor:pointer;transition:var(--tr);margin-top:0.5rem;
+    }
+    .btn-auth:hover{transform:translateY(-2px);box-shadow:var(--shadow-gold);filter:brightness(1.06);}
+    .btn-auth:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+    .auth-footer{text-align:center;margin-top:1.5rem;color:var(--text-sub);font-size:0.82rem;}
+    .auth-footer a{color:var(--gold);cursor:pointer;text-decoration:none;}
+    .auth-footer a:hover{color:var(--gold-light);}
+    .error-msg{
+      background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.35);
+      border-radius:8px;padding:0.75rem 1rem;color:#f87171;font-size:0.8rem;
+      margin-bottom:1rem;display:none;
+    }
+    .success-msg{
+      background:rgba(22,163,74,0.15);border:1px solid rgba(22,163,74,0.35);
+      border-radius:8px;padding:0.75rem 1rem;color:#4ade80;font-size:0.8rem;
+      margin-bottom:1rem;display:none;
+    }
+    .pw-wrap{position:relative;}
+    .pw-wrap input{padding-right:2.8rem;}
+    .pw-toggle{
+      position:absolute;right:0.85rem;top:50%;transform:translateY(-50%);
+      background:none;border:none;color:var(--text-sub);cursor:pointer;font-size:1rem;padding:0;
+    }
+    .strength-bar{height:4px;border-radius:2px;margin-top:0.4rem;background:var(--border);overflow:hidden;}
+    .strength-fill{height:100%;width:0%;border-radius:2px;transition:width 0.3s,background 0.3s;}
+    .strength-label{font-size:0.68rem;color:var(--text-sub);margin-top:0.2rem;}
+    @media(max-width:480px){.row2{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+
+<div class="auth-wrap">
+  <div class="auth-logo">
+    <div class="logo-box">IV<br>TC</div>
+    <h1>Itjareng VTC</h1>
+    <p>Create your visitor account to access the website</p>
+  </div>
+
+  <div class="auth-card">
+    <h2>Create Account</h2>
+    <p class="sub">All fields marked * are required. Your information is saved securely.</p>
+
+    <div class="error-msg" id="err-msg"></div>
+    <div class="success-msg" id="ok-msg"></div>
+
+    <form id="reg-form" onsubmit="doRegister(event)" novalidate>
+      <div class="row2">
+        <div class="fg">
+          <label for="r-firstname">First Name *</label>
+          <input type="text" id="r-firstname" placeholder="First name" required/>
+        </div>
+        <div class="fg">
+          <label for="r-lastname">Last Name *</label>
+          <input type="text" id="r-lastname" placeholder="Last name" required/>
+        </div>
+      </div>
+      <div class="fg">
+        <label for="r-email">Email Address *</label>
+        <input type="email" id="r-email" placeholder="your@email.com" required/>
+      </div>
+      <div class="fg">
+        <label for="r-phone">Phone Number *</label>
+        <input type="tel" id="r-phone" placeholder="+266 XXXX XXXX" required/>
+      </div>
+      <div class="fg">
+        <label for="r-gender">Gender *</label>
+        <select id="r-gender" required>
+          <option value="">-- Select --</option>
+          <option>Male</option>
+          <option>Female</option>
+          <option>Prefer not to say</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label for="r-username">Username *</label>
+        <input type="text" id="r-username" placeholder="Choose a username" required/>
+        <span class="hint">Letters, numbers, underscores only. Min 4 characters.</span>
+      </div>
+      <div class="fg">
+        <label for="r-password">Password *</label>
+        <div class="pw-wrap">
+          <input type="password" id="r-password" placeholder="Create a strong password" required oninput="checkStrength(this.value)"/>
+          <button type="button" class="pw-toggle" onclick="togglePw('r-password',this)">👁</button>
+        </div>
+        <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+        <div class="strength-label" id="strength-label"></div>
+      </div>
+      <div class="fg">
+        <label for="r-confirm">Confirm Password *</label>
+        <div class="pw-wrap">
+          <input type="password" id="r-confirm" placeholder="Repeat your password" required/>
+          <button type="button" class="pw-toggle" onclick="togglePw('r-confirm',this)">👁</button>
+        </div>
+      </div>
+      <button type="submit" class="btn-auth" id="reg-btn">✦ Create Account</button>
+    </form>
+
+    <div class="auth-footer">
+      Already have an account? <a href="login.html">Sign In →</a>
+    </div>
+  </div>
+</div>
+
+<script>
+// config — sets window.API_BASE_URL
+(function(){
+  var DEV = 'http://localhost:3000';
+  var PROD = 'https://YOUR-BACKEND-URL.onrender.com';
+  window.API_BASE_URL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? DEV : PROD;
+})();
+</script>
+
+<script>
+/* ---- Canvas BG ---- */
+(function(){
+  const c=document.getElementById('bg'),ctx=c.getContext('2d');
+  function resize(){c.width=innerWidth;c.height=innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    const hs=72,f=Date.now()/8000;
+    const ox=(f*40)%(hs*Math.sqrt(3)),oy=(f*25)%(hs*1.5);
+    ctx.strokeStyle='rgba(26,58,107,0.18)';ctx.lineWidth=0.5;
+    for(let r=-1;r<c.height/(hs*1.5)+2;r++){
+      for(let col=-1;col<c.width/(hs*Math.sqrt(3))+2;col++){
+        const cx=col*hs*Math.sqrt(3)+(r%2)*hs*Math.sqrt(3)/2+ox;
+        const cy=r*hs*1.5+oy;
+        ctx.beginPath();
+        for(let s=0;s<6;s++){const a=(Math.PI/3)*s-Math.PI/6;ctx.lineTo(cx+hs*0.88*Math.cos(a),cy+hs*0.88*Math.sin(a));}
+        ctx.closePath();ctx.stroke();
+      }
+    }
+    requestAnimationFrame(draw);
+  }draw();
+})();
+
+function togglePw(id,btn){
+  const el=document.getElementById(id);
+  el.type=el.type==='password'?'text':'password';
+  btn.textContent=el.type==='password'?'👁':'🙈';
+}
+
+function checkStrength(pw){
+  const fill=document.getElementById('strength-fill');
+  const lbl=document.getElementById('strength-label');
+  let score=0;
+  if(pw.length>=8)score++;
+  if(/[A-Z]/.test(pw))score++;
+  if(/[0-9]/.test(pw))score++;
+  if(/[^A-Za-z0-9]/.test(pw))score++;
+  const colors=['#ef4444','#f97316','#eab308','#22c55e'];
+  const labels=['Weak','Fair','Good','Strong'];
+  fill.style.width=(score*25)+'%';
+  fill.style.background=colors[score-1]||'transparent';
+  lbl.textContent=score>0?labels[score-1]:'';
+}
+
+function showErr(msg){
+  const el=document.getElementById('err-msg');
+  el.textContent=msg;el.style.display='block';
+  document.getElementById('ok-msg').style.display='none';
+}
+function showOk(msg){
+  const el=document.getElementById('ok-msg');
+  el.textContent=msg;el.style.display='block';
+  document.getElementById('err-msg').style.display='none';
+}
+
+async function doRegister(e){
+  e.preventDefault();
+  const btn=document.getElementById('reg-btn');
+
+  const firstName=document.getElementById('r-firstname').value.trim();
+  const lastName=document.getElementById('r-lastname').value.trim();
+  const email=document.getElementById('r-email').value.trim();
+  const phone=document.getElementById('r-phone').value.trim();
+  const gender=document.getElementById('r-gender').value;
+  const username=document.getElementById('r-username').value.trim().toLowerCase();
+  const password=document.getElementById('r-password').value;
+  const confirm=document.getElementById('r-confirm').value;
+
+  if(!firstName||!lastName||!email||!phone||!gender||!username||!password||!confirm){
+    showErr('Please fill in all required fields.');return;
+  }
+  if(!/^[a-z0-9_]{4,}$/.test(username)){
+    showErr('Username must be at least 4 characters — letters, numbers, underscores only.');return;
+  }
+  if(password.length<6){showErr('Password must be at least 6 characters.');return;}
+  if(password!==confirm){showErr('Passwords do not match.');return;}
+
+  btn.disabled=true;
+  btn.textContent='Creating account…';
+
+  try {
+    // POST to Node.js server — saves directly to users.json
+    const res = await fetch(window.API_BASE_URL + '/api/register',{
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ firstName, lastName, email, phone, gender, username, password })
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+      showOk('Account created successfully! Your data has been saved. Redirecting to login…');
+      setTimeout(()=>{ window.location.href='login.html'; }, 2000);
+    } else {
+      showErr(data.message || 'Registration failed. Please try again.');
+      btn.disabled=false;
+      btn.textContent='✦ Create Account';
+    }
+  } catch(err){
+    showErr('Cannot connect to server. Make sure Node.js server is running.');
+    btn.disabled=false;
+    btn.textContent='✦ Create Account';
+  }
+}
+</script>
+</body>
+</html>

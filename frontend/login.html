@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — Itjareng VTC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --royal:#1a3a6b;--royal-deep:#0d2347;--royal-dark:#071529;
+      --royal-mid:#1e4d8c;--royal-light:#2563b8;--royal-bright:#3b82f6;
+      --gold:#c9a84c;--gold-light:#e8c97a;
+      --white:#f0f4ff;--text:#e8f0ff;--text-sub:#98b4d4;
+      --card:rgba(13,35,71,0.85);--border:rgba(201,168,76,0.18);
+      --shadow:0 8px 40px rgba(0,0,0,0.45);
+      --shadow-gold:0 4px 24px rgba(201,168,76,0.35);
+      --tr:all 0.32s cubic-bezier(0.4,0,0.2,1);
+      --ff-display:'Cinzel',serif;--ff-body:'Raleway',sans-serif;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{
+      font-family:var(--ff-body);background:var(--royal-dark);color:var(--text);
+      min-height:100vh;display:flex;align-items:center;justify-content:center;
+      padding:2rem;position:relative;overflow-x:hidden;
+    }
+    canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none;}
+    .auth-wrap{position:relative;z-index:2;width:100%;max-width:440px;}
+    .auth-logo{text-align:center;margin-bottom:2rem;}
+    .logo-box{
+      width:64px;height:64px;
+      background:linear-gradient(135deg,var(--gold),var(--royal-light));
+      border-radius:14px;display:inline-flex;align-items:center;justify-content:center;
+      font-family:var(--ff-display);font-weight:900;font-size:1rem;
+      color:var(--royal-dark);letter-spacing:0.05em;
+      box-shadow:var(--shadow-gold);line-height:1.1;text-align:center;margin-bottom:1rem;
+    }
+    .auth-logo h1{
+      font-family:var(--ff-display);font-size:1.5rem;
+      background:linear-gradient(135deg,#fff,var(--gold-light));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    }
+    .auth-logo p{color:var(--text-sub);font-size:0.82rem;margin-top:0.3rem;}
+    .auth-card{
+      background:var(--card);border:1px solid var(--border);
+      border-radius:20px;padding:2.5rem;
+      backdrop-filter:blur(20px);box-shadow:var(--shadow);
+    }
+    .tab-row{display:flex;gap:0.5rem;margin-bottom:2rem;}
+    .tab-btn{
+      flex:1;padding:0.6rem;border-radius:8px;border:1.5px solid var(--border);
+      background:transparent;color:var(--text-sub);
+      font-family:var(--ff-display);font-size:0.72rem;letter-spacing:0.1em;
+      cursor:pointer;transition:var(--tr);text-transform:uppercase;
+    }
+    .tab-btn.active{
+      background:linear-gradient(135deg,rgba(201,168,76,0.15),rgba(59,130,246,0.1));
+      border-color:var(--gold);color:var(--gold-light);
+    }
+    .tab-panel{display:none;}
+    .tab-panel.active{display:block;}
+    .auth-card h2{font-family:var(--ff-display);font-size:1.1rem;color:var(--gold-light);margin-bottom:0.35rem;}
+    .auth-card .sub{color:var(--text-sub);font-size:0.8rem;margin-bottom:1.75rem;}
+    .fg{margin-bottom:1.1rem;display:flex;flex-direction:column;}
+    .fg label{font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-sub);margin-bottom:0.4rem;}
+    .fg input{
+      background:rgba(7,21,41,0.9);border:1.5px solid var(--border);
+      border-radius:8px;padding:0.75rem 1rem;
+      color:var(--text);font-family:var(--ff-body);font-size:0.88rem;
+      transition:var(--tr);width:100%;outline:none;
+    }
+    .fg input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,0.14);}
+    .pw-wrap{position:relative;}
+    .pw-wrap input{padding-right:2.8rem;}
+    .pw-toggle{
+      position:absolute;right:0.85rem;top:50%;transform:translateY(-50%);
+      background:none;border:none;color:var(--text-sub);cursor:pointer;font-size:1rem;
+    }
+    .btn-auth{
+      width:100%;padding:0.85rem;border:none;border-radius:8px;
+      background:linear-gradient(135deg,var(--gold),var(--gold-light));
+      color:var(--royal-dark);font-family:var(--ff-display);
+      font-size:0.85rem;font-weight:700;letter-spacing:0.08em;
+      cursor:pointer;transition:var(--tr);margin-top:0.5rem;
+    }
+    .btn-auth:hover{transform:translateY(-2px);box-shadow:var(--shadow-gold);filter:brightness(1.06);}
+    .btn-auth:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+    .btn-admin{background:linear-gradient(135deg,var(--royal-mid),var(--royal-bright));color:#fff;}
+    .error-msg{
+      background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.35);
+      border-radius:8px;padding:0.75rem 1rem;color:#f87171;font-size:0.8rem;
+      margin-bottom:1rem;display:none;
+    }
+    .auth-footer{text-align:center;margin-top:1.5rem;color:var(--text-sub);font-size:0.82rem;}
+    .auth-footer a{color:var(--gold);text-decoration:none;}
+    .auth-footer a:hover{color:var(--gold-light);}
+    .admin-badge{
+      display:inline-flex;align-items:center;gap:0.4rem;
+      background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.3);
+      border-radius:100px;padding:0.25rem 0.9rem;
+      font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;
+      color:var(--royal-bright);margin-bottom:1.25rem;
+    }
+  </style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+
+<div class="auth-wrap">
+  <div class="auth-logo">
+    <div class="logo-box">IV<br>TC</div>
+    <h1>Itjareng VTC</h1>
+    <p>Sign in to access the website</p>
+  </div>
+
+  <div class="auth-card">
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="switchTab('visitor',this)">Visitor Login</button>
+      <button class="tab-btn" onclick="switchTab('admin',this)">Admin Login</button>
+    </div>
+
+    <!-- VISITOR -->
+    <div class="tab-panel active" id="tab-visitor">
+      <h2>Welcome Back</h2>
+      <p class="sub">Sign in with your username and password.</p>
+      <div class="error-msg" id="v-err"></div>
+      <form onsubmit="doLogin(event,'visitor')" novalidate>
+        <div class="fg">
+          <label for="v-username">Username *</label>
+          <input type="text" id="v-username" placeholder="Your username" required/>
+        </div>
+        <div class="fg">
+          <label for="v-password">Password *</label>
+          <div class="pw-wrap">
+            <input type="password" id="v-password" placeholder="Your password" required/>
+            <button type="button" class="pw-toggle" onclick="togglePw('v-password',this)">👁</button>
+          </div>
+        </div>
+        <button type="submit" class="btn-auth" id="v-btn">→ Sign In</button>
+      </form>
+      <div class="auth-footer">No account yet? <a href="register.html">Register here →</a></div>
+    </div>
+
+    <!-- ADMIN -->
+    <div class="tab-panel" id="tab-admin">
+      <div class="admin-badge">🔐 Admin Access Only</div>
+      <h2>Admin Login</h2>
+      <p class="sub">Restricted to authorised IVTC administrators.</p>
+      <div class="error-msg" id="a-err"></div>
+      <form onsubmit="doLogin(event,'admin')" novalidate>
+        <div class="fg">
+          <label for="a-username">Admin Username *</label>
+          <input type="text" id="a-username" placeholder="Admin username" required/>
+        </div>
+        <div class="fg">
+          <label for="a-password">Admin Password *</label>
+          <div class="pw-wrap">
+            <input type="password" id="a-password" placeholder="Admin password" required/>
+            <button type="button" class="pw-toggle" onclick="togglePw('a-password',this)">👁</button>
+          </div>
+        </div>
+        <button type="submit" class="btn-auth btn-admin" id="a-btn">🔐 Admin Sign In</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// config — sets window.API_BASE_URL
+(function(){
+  var DEV = 'http://localhost:3000';
+  var PROD = 'https://YOUR-BACKEND-URL.onrender.com';
+  window.API_BASE_URL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? DEV : PROD;
+})();
+</script>
+
+<script>
+(function(){
+  const c=document.getElementById('bg'),ctx=c.getContext('2d');
+  function resize(){c.width=innerWidth;c.height=innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    const hs=72,f=Date.now()/8000;
+    const ox=(f*40)%(hs*Math.sqrt(3)),oy=(f*25)%(hs*1.5);
+    ctx.strokeStyle='rgba(26,58,107,0.18)';ctx.lineWidth=0.5;
+    for(let r=-1;r<c.height/(hs*1.5)+2;r++){
+      for(let col=-1;col<c.width/(hs*Math.sqrt(3))+2;col++){
+        const cx=col*hs*Math.sqrt(3)+(r%2)*hs*Math.sqrt(3)/2+ox;
+        const cy=r*hs*1.5+oy;
+        ctx.beginPath();
+        for(let s=0;s<6;s++){const a=(Math.PI/3)*s-Math.PI/6;ctx.lineTo(cx+hs*0.88*Math.cos(a),cy+hs*0.88*Math.sin(a));}
+        ctx.closePath();ctx.stroke();
+      }
+    }
+    requestAnimationFrame(draw);
+  }draw();
+})();
+
+function togglePw(id,btn){
+  const el=document.getElementById(id);
+  el.type=el.type==='password'?'text':'password';
+  btn.textContent=el.type==='password'?'👁':'🙈';
+}
+function switchTab(tab,btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+}
+function showErr(id,msg){
+  const el=document.getElementById(id);
+  el.textContent=msg;el.style.display='block';
+}
+
+async function doLogin(e, role){
+  e.preventDefault();
+  const isAdmin = role === 'admin';
+  const username = document.getElementById(isAdmin?'a-username':'v-username').value.trim();
+  const password = document.getElementById(isAdmin?'a-password':'v-password').value;
+  const btn = document.getElementById(isAdmin?'a-btn':'v-btn');
+  const errId = isAdmin?'a-err':'v-err';
+
+  if(!username||!password){showErr(errId,'Please enter your credentials.');return;}
+
+  btn.disabled=true;
+  btn.textContent='Signing in…';
+
+  try {
+    // POST to Node.js server — checks users.json
+   const res = await fetch(window.API_BASE_URL + '/api/login', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      credentials: 'include',
+      body: JSON.stringify({ username, password, role })
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+      window.location.href = data.redirect;
+    } else {
+      showErr(errId, data.message || 'Login failed.');
+      btn.disabled=false;
+      btn.textContent = isAdmin ? '🔐 Admin Sign In' : '→ Sign In';
+    }
+  } catch(err){
+    showErr(errId,'Cannot connect to server. Make sure Node.js server is running.');
+    btn.disabled=false;
+    btn.textContent = isAdmin ? '🔐 Admin Sign In' : '→ Sign In';
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Itjareng Vocational Training Centre | IVTC Lesotho</title>
+  <meta name="description" content="Itjareng Vocational Training Centre — Empowering Lives Through Skills. Vocational training for people with disabilities in Lesotho since 1986."/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Raleway:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+
+  <!-- Media page inline styles -->
+  <style>
+    .media-img-wrap {
+      position: relative;
+      overflow: hidden;
+      border-radius: 10px;
+      border: 1px solid rgba(201,168,76,0.18);
+      background: #0d2347;
+      margin-bottom: 1rem;
+      cursor: pointer;
+    }
+    .media-img-wrap img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+    .media-img-wrap:hover img { transform: scale(1.04); }
+    .media-img-overlay {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: linear-gradient(to top, rgba(7,21,41,0.95), transparent);
+      padding: 1.5rem 1rem 0.85rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .media-img-wrap:hover .media-img-overlay { opacity: 1; }
+    .media-img-overlay .cat {
+      font-size: 0.62rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+    .media-img-overlay strong { color: #fff; font-size: 0.85rem; }
+    .media-img-overlay p { color: #98b4d4; font-size: 0.75rem; margin: 0; }
+
+    .media-video-wrap {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(201,168,76,0.18);
+      background: #0d2347;
+      margin-bottom: 1rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .media-video-wrap:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.45);
+      border-color: rgba(201,168,76,0.4);
+    }
+    .media-video-wrap iframe {
+      width: 100%;
+      height: 210px;
+      display: block;
+      border: none;
+    }
+    .media-video-info {
+      padding: 0.85rem 1rem;
+    }
+    .media-video-info h6 {
+      color: #e8f0ff;
+      font-family: 'Cinzel', serif;
+      font-size: 0.82rem;
+      margin-bottom: 0.3rem;
+    }
+    .media-video-info p {
+      color: #98b4d4;
+      font-size: 0.75rem;
+      margin: 0;
+      line-height: 1.5;
+    }
+    .media-section-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--gold);
+      display: block;
+      margin-bottom: 1.25rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- CANVAS BG -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- ============================================================
+     NAVBAR
+============================================================ -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <div class="nav-brand" onclick="navigate('home')">
+      <div class="nav-logo">IV<br>TC</div>
+      <div class="nav-brand-text">
+        <span class="nav-brand-main">Itjareng</span>
+        <span class="nav-brand-sub">Vocational Training Centre</span>
+      </div>
+    </div>
+
+    <ul class="nav-links" id="navMenu">
+      <li><a data-page="home"     onclick="navigate('home')">Home</a></li>
+      <li><a data-page="programs" onclick="navigate('programs')">Programs</a></li>
+      <li><a data-page="media"    onclick="navigate('media')">Media</a></li>
+      <li><a data-page="about"    onclick="navigate('about')">About</a></li>
+      <li><a data-page="contact"  onclick="navigate('contact')">Contact</a></li>
+      <li><a data-page="register" onclick="navigate('register')" class="nav-cta">Apply Now</a></li>
+    </ul>
+
+    <button class="nav-toggle" onclick="toggleNav()" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+
+<!-- ============================================================
+     PAGE 1 — HOME
+============================================================ -->
+<div class="page" id="home">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        Est. 1986 · Masianokeng, Lesotho · LNAPD
+      </div>
+      <h1 class="hero-title">
+        <span class="ln1">Welcome to</span>
+        <span class="ln2">Itjareng VTC</span>
+        <span class="ln3">Empowering Lives Through Skills</span>
+      </h1>
+      <p class="hero-sub">
+        A residential vocational training centre dedicated to empowering individuals
+        with disabilities through practical skills, dignity, and opportunity — since 1986.
+        Open to applicants aged 18–45 years.
+      </p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" onclick="navigate('register')">✦ Apply for Admission</button>
+        <button class="btn btn-outline" onclick="navigate('programs')">Explore Programs →</button>
+      </div>
+    </div>
+    <div class="hero-scroll"><div class="scroll-line"></div>Scroll</div>
+  </section>
+
+  <!-- STATS BAR -->
+  <div class="stats-bar">
+    <div class="stats-grid" id="stats-container"></div>
+  </div>
+
+  <!-- WHO WE ARE -->
+  <section class="section section-a">
+    <div class="container-xl">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-6">
+          <span class="section-tag" style="text-align:left;display:block;margin-bottom:0.6rem;">Our Purpose</span>
+          <h2 style="color:var(--gold-light);margin-bottom:1.35rem;">Who We Are</h2>
+          <p style="color:var(--text-sub);margin-bottom:1rem;">
+            Itjareng Vocational Training Centre is a beacon of hope in Lesotho. Founded in 1986 by the
+            Lesotho National Association of the Physically Disabled (LNAPD), we provide inclusive residential
+            vocational training for individuals with physical, intellectual, and hearing disabilities.
+          </p>
+          <p style="color:var(--text-sub);margin-bottom:1.75rem;">
+            We believe in the power of practical skills to transform lives. Our students leave not just with a
+            trade — but with confidence, independence, and a future they built with their own hands.
+          </p>
+          <div style="display:flex;flex-direction:column;gap:0.65rem;margin-bottom:2rem;">
+            <div style="display:flex;align-items:center;gap:0.7rem;color:var(--text-sub);font-size:0.88rem;">
+              <span style="color:var(--gold);font-size:1rem;">◆</span> Open to applicants aged 18–45 years
+            </div>
+            <div style="display:flex;align-items:center;gap:0.7rem;color:var(--text-sub);font-size:0.88rem;">
+              <span style="color:var(--gold);font-size:1rem;">◆</span> Residential training — live and learn on-site
+            </div>
+            <div style="display:flex;align-items:center;gap:0.7rem;color:var(--text-sub);font-size:0.88rem;">
+              <span style="color:var(--gold);font-size:1rem;">◆</span> M250 registration fee · school fees as per school requirements
+            </div>
+            <div style="display:flex;align-items:center;gap:0.7rem;color:var(--text-sub);font-size:0.88rem;">
+              <span style="color:var(--gold);font-size:1rem;">◆</span> Student-made products available for sale
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="navigate('about')">Learn More →</button>
+        </div>
+        <div class="col-lg-6">
+          <div style="background:var(--glass);border:1px solid var(--glass-b);border-radius:18px;padding:2.5rem;backdrop-filter:blur(12px);">
+            <div style="font-family:var(--ff-display);font-size:0.7rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin-bottom:1.15rem;">Mission</div>
+            <p style="color:var(--white);font-size:1rem;line-height:1.85;font-style:italic;margin-bottom:1.75rem;border-left:3px solid var(--gold);padding-left:1.2rem;">
+              "To provide practical vocational skills and life skills to disabled individuals so that they can live
+              independently, earn an income, and meaningfully participate in society."
+            </p>
+            <div style="font-family:var(--ff-display);font-size:0.7rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin-bottom:1.15rem;">Vision</div>
+            <p style="color:var(--text-sub);font-size:0.9rem;line-height:1.8;">
+              To be a leading institution in Lesotho that equips people with disabilities with marketable vocational
+              skills, strengthening their ability to compete in the labour market and contribute to economic growth.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROGRAMS PREVIEW -->
+  <section class="section section-b">
+    <div class="container-xl">
+      <div class="section-header">
+        <span class="section-tag">Vocational Training</span>
+        <h2 class="section-title">Our Programs</h2>
+        <div class="section-line"></div>
+        <p class="section-sub">Practical vocational programs offering 2 years of residential training with no minimum education required.</p>
+      </div>
+      <div class="mission-grid" id="home-programs-grid"></div>
+      <div style="text-align:center;margin-top:2.75rem;">
+        <button class="btn btn-outline" onclick="navigate('programs')">View All Programs →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section section-b">
+    <div class="container-xl" style="max-width:720px;">
+      <div class="cta-block">
+        <span class="section-tag">Ready to Transform Your Life?</span>
+        <h2>Begin Your Journey Today</h2>
+        <p>Join over 400 graduates who have built new lives through Itjareng's vocational training. Applications are open year-round for applicants aged 18–45 years.</p>
+        <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="navigate('register')">✦ Apply for Admission</button>
+          <button class="btn btn-outline" onclick="navigate('contact')">Contact Us</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <div class="nav-brand" style="margin-bottom:0.85rem;cursor:default;">
+          <div class="nav-logo">IV<br>TC</div>
+          <div class="nav-brand-text">
+            <span class="nav-brand-main">Itjareng</span>
+            <span class="nav-brand-sub">Vocational Training Centre</span>
+          </div>
+        </div>
+        <p class="footer-brand-text">Empowering individuals with disabilities through practical vocational skills since 1986. Masianokeng Village, Maseru, Lesotho.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a onclick="navigate('home')">Home</a></li>
+          <li><a onclick="navigate('programs')">Programs</a></li>
+          <li><a onclick="navigate('media')">Media Gallery</a></li>
+          <li><a onclick="navigate('about')">About Us</a></li>
+          <li><a onclick="navigate('contact')">Contact</a></li>
+          <li><a onclick="navigate('register')">Apply Now</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="mailto:IVTCdirector@gmail.com">IVTCdirector@gmail.com</a></li>
+          <li><a href="mailto:itjareng@gmail.com">itjareng@gmail.com</a></li>
+          <li><a>Masianokeng Village, Maseru</a></li>
+          <li><a>~15 km East of Maseru City</a></li>
+          <li><a href="http://itjareng.blogspot.com" target="_blank">itjareng.blogspot.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Itjareng Vocational Training Centre. Powered by LNAPD. All rights reserved.</p>
+      <span class="footer-est">Est. 1986 · Maseru, Lesotho</span>
+    </div>
+  </footer>
+</div><!-- /home -->
+
+
+<!-- ============================================================
+     PAGE 2 — PROGRAMS
+============================================================ -->
+<div class="page" id="programs">
+
+  <div class="page-hero">
+    <span class="section-tag">Vocational Training</span>
+    <h1>Our Programs</h1>
+    <p>Hands-on vocational programs offering 2 years of residential training. No minimum educational level required. Open to applicants aged 18–45 years.</p>
+  </div>
+
+  <!-- ENROLLMENT AVAILABILITY BANNER -->
+  <div class="availability-banner">
+    <div class="avail-inner">
+      <div class="avail-title">📋 Programs Offered at IVTC</div>
+      <div class="avail-grid" id="avail-chips"><!-- JS rendered --></div>
+    </div>
+  </div>
+
+  <!-- INFO STRIP -->
+  <div style="background:var(--glass);border-bottom:1px solid var(--border);padding:1.5rem 2rem;position:relative;z-index:2;">
+    <div style="max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;gap:2rem;justify-content:center;">
+      <div style="display:flex;align-items:center;gap:0.7rem;color:var(--text-sub);font-size:0.85rem;"><span>🏠</span><span><strong style="color:var(--gold);">Residential</strong> — Students live on-site</span></div>
+      <div style="display:flex;align-items:center;gap:0.7rem;color:var(--text-sub);font-size:0.85rem;"><span>⏱</span><span><strong style="color:var(--gold);">2 Years</strong> — Full training duration</span></div>
+      <div style="display:flex;align-items:center;gap:0.7rem;color:var(--text-sub);font-size:0.85rem;"><span>💰</span><span><strong style="color:var(--gold);">M250 Registration</strong> · school fees as per school requirements</span></div>
+      <div style="display:flex;align-items:center;gap:0.7rem;color:var(--text-sub);font-size:0.85rem;"><span>🎓</span><span><strong style="color:var(--gold);">No minimum</strong> — Education level required</span></div>
+    </div>
+  </div>
+
+  <!-- PROGRAMS GRID -->
+  <div class="programs-grid" id="programs-grid"><!-- JS rendered --></div>
+
+  <!-- ELIGIBILITY -->
+  <section class="section section-a">
+    <div class="container-xl" style="max-width:900px;">
+      <div class="section-header">
+        <span class="section-tag">Eligibility</span>
+        <h2 class="section-title">Who Can Apply?</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="row g-3" style="max-width:800px;margin:0 auto;">
+        <div class="col-md-6"><div class="hi-item"><div class="hi-icon">♿</div><div class="hi-text"><h4>Physical Disability</h4><p>Individuals with mobility or physical impairments of any kind</p></div></div></div>
+        <div class="col-md-6"><div class="hi-item"><div class="hi-icon">🦻</div><div class="hi-text"><h4>Hearing Impaired</h4><p>Deaf or hard-of-hearing individuals — sign language support provided</p></div></div></div>
+        <div class="col-md-6"><div class="hi-item"><div class="hi-icon">🧠</div><div class="hi-text"><h4>Intellectual Disability</h4><p>Individuals with learning or intellectual challenges welcome</p></div></div></div>
+        <div class="col-md-6"><div class="hi-item"><div class="hi-icon">🌱</div><div class="hi-text"><h4>Vulnerable Youth &amp; Adults</h4><p>Ages 18–45 years. School dropouts and unemployed individuals seeking alternative pathways</p></div></div></div>
+      </div>
+      <div style="text-align:center;margin-top:2.75rem;">
+        <button class="btn btn-primary" onclick="navigate('register')">✦ Apply for Admission</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-bottom" style="max-width:100%;justify-content:center;">
+      <p>© 2025 Itjareng Vocational Training Centre · <a onclick="navigate('home')" style="color:var(--gold);">Home</a></p>
+    </div>
+  </footer>
+</div><!-- /programs -->
+
+
+<!-- ============================================================
+     PAGE 3 — MEDIA GALLERY (plain hardcoded HTML, no JS rendering)
+============================================================ -->
+<div class="page" id="media">
+
+  <div class="page-hero">
+    <span class="section-tag">Gallery &amp; Videos</span>
+    <h1>Media Gallery</h1>
+    <p>Explore life at Itjareng VTC — our students, programs, workshops, and campus through photos and video.</p>
+  </div>
+
+  <section class="section section-a" style="padding-top:3rem;">
+    <div class="container-xl">
+
+      <!-- ===== PHOTOS ===== -->
+      <span class="media-section-label">📷 Photos</span>
+      <div class="row g-3 mb-5">
+
+        <div class="col-lg-4 col-md-6">
+          <div class="media-img-wrap">
+            <img src="images/metal.jpg" alt="Metalwork Workshop"/>
+            <div class="media-img-overlay">
+              <span class="cat">Metalwork</span>
+              <strong>Metalwork Workshop</strong>
+              <p>Students practicing metal fabrication techniques in the workshop</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="media-img-wrap">
+            <img src="images/lepolanka.jpg" alt="Carpentry Training"/>
+            <div class="media-img-overlay">
+              <span class="cat">Carpentry</span>
+              <strong>Carpentry Training</strong>
+              <p>A trainee working on a furniture joinery project</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="media-img-wrap">
+            <img src="images/sewing.jpg" alt="Sewing &amp; Tailoring"/>
+            <div class="media-img-overlay">
+              <span class="cat">Sewing</span>
+              <strong>Sewing &amp; Tailoring</strong>
+              <p>Students learning garment construction and pattern making</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="media-img-wrap">
+            <img src="images/agric.jpg" alt="Agriculture Program"/>
+            <div class="media-img-overlay">
+              <span class="cat">Agriculture</span>
+              <strong>Agriculture Program</strong>
+              <p>Trainees tending to the vegetable garden on campus</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="media-img-wrap">
+            <img src="images/matlalo.jpg" alt="Leatherwork Craft"/>
+            <div class="media-img-overlay">
+              <span class="cat">Leatherwork</span>
+              <strong>Leatherwork Craft</strong>
+              <p>Handcrafted leather products made by IVTC students</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="media-img-wrap">
+            <img src="images/life.jpg" alt="Campus Life"/>
+            <div class="media-img-overlay">
+              <span class="cat">Campus</span>
+              <strong>Campus Life</strong>
+              <p>The Itjareng VTC residential campus in Masianokeng</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="media-img-wrap">
+            <img src="images/gra.jpg" alt="Graduation Ceremony"/>
+            <div class="media-img-overlay">
+              <span class="cat">Events</span>
+              <strong>Graduation Ceremony</strong>
+              <p>Proud graduates receiving their vocational certificates</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="media-img-wrap">
+            <img src="images/s.jpg" alt="Student Community"/>
+            <div class="media-img-overlay">
+              <span class="cat">Campus</span>
+              <strong>Student Community</strong>
+              <p>Inclusive support systems that empower every student</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="media-img-wrap">
+            <img src="images/t.jpg" alt="Skills for Life"/>
+            <div class="media-img-overlay">
+              <span class="cat">Training</span>
+              <strong>Skills for Life</strong>
+              <p>Practical hands-on training that prepares students for independence</p>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /photos row -->
+
+      <!-- ===== VIDEOS ===== -->
+      <span class="media-section-label" style="margin-top:2rem;">▶ Videos</span>
+      <div class="row g-3">
+
+        <div class="col-lg-4 col-md-6">
+          <div class="media-video-wrap">
+            <iframe src="videos/welcome.mp4" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+           <h2>welcome to itjareng</h2>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="media-video-wrap">
+            <iframe src="videos/grats.mp4" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+              <h2>Graduation Ceremony</h2>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="media-video-wrap">
+            <iframe src="videos/moshoeshoe.mp4" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+            <h2>Moshoeshoe's Day</h2>
+          </div>
+        </div>
+
+      </div><!-- /videos row -->
+
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-bottom" style="max-width:100%;justify-content:center;">
+      <p>© 2025 Itjareng Vocational Training Centre · <a onclick="navigate('home')" style="color:var(--gold);">Home</a></p>
+    </div>
+  </footer>
+</div><!-- /media -->
+
+
+<!-- ============================================================
+     PAGE 4 — ABOUT
+============================================================ -->
+<div class="page" id="about">
+
+  <div class="page-hero">
+    <span class="section-tag">Our Story</span>
+    <h1>About IVTC</h1>
+    <p>Nearly four decades of empowering Lesotho's most vulnerable through skills, dignity, and opportunity.</p>
+  </div>
+
+  <section class="section section-a">
+    <div class="container-xl" style="max-width:1100px;padding:4rem 2rem;">
+
+      <div class="about-grid">
+        <div class="about-text">
+          <h2>Our History</h2>
+          <p>The Itjareng Vocational Training Centre was established in 1986 by the Lesotho National Association of the Physically Disabled (LNAPD). Born from a recognition that people with disabilities deserved access to practical education and economic participation, IVTC was created by the disabled community, for the disabled community.</p>
+          <p>Located at Masianokeng Village, approximately 15 km east of Maseru and close to the International Airport, the Centre has over the years served more than 400 learners across a wide range of disabilities. IVTC was legally registered in 1999 and operates as a non-profit organisation.</p>
+          <p>IVTC is one of very few institutions in Lesotho that accepts students aged 18 to 45 years with no minimum educational requirement — making it truly inclusive and accessible to Lesotho's most marginalized citizens. The centre accommodates between 50 and 70 students at a time, each enrolled in a 2-year residential training program.</p>
+          <p>Beyond vocational skills, IVTC engages in advocacy, HIV/AIDS awareness training, democracy and human rights education, and reproductive health training — equipping graduates not just with trade skills, but with knowledge of their rights as full members of society.</p>
+        </div>
+        <div class="about-highlights">
+          <div class="hi-item"><div class="hi-icon">📍</div><div class="hi-text"><h4>Location</h4><p>Masianokeng Village, ~15 km east of Maseru, near Moshoeshoe I International Airport</p></div></div>
+          <div class="hi-item"><div class="hi-icon">📅</div><div class="hi-text"><h4>Established</h4><p>Founded in 1986 by LNAPD — legally registered in 1999</p></div></div>
+          <div class="hi-item"><div class="hi-icon">👥</div><div class="hi-text"><h4>Students Served</h4><p>Over 400 learners trained at IVTC. Currently accommodates 50–70 students at a time.</p></div></div>
+          <div class="hi-item"><div class="hi-icon">🏠</div><div class="hi-text"><h4>Residential Facility</h4><p>Students aged 18–45 live on-site throughout their 2-year training program</p></div></div>
+          <div class="hi-item"><div class="hi-icon">💰</div><div class="hi-text"><h4>Fees</h4><p>M250 registration fee (one-time) · school fees as per school requirements</p></div></div>
+          <div class="hi-item"><div class="hi-icon">🌍</div><div class="hi-text"><h4>Advocacy</h4><p>HIV/AIDS, human rights, democracy, and reproductive health training in addition to vocational programs</p></div></div>
+        </div>
+      </div>
+
+      <!-- DIRECTOR -->
+      <div class="section-header" style="margin-top:1rem;margin-bottom:2rem;">
+        <span class="section-tag">Leadership</span>
+        <h2 class="section-title">Centre Director</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="director-card">
+        <div class="director-avatar">MF</div>
+        <h3>Mr. Molise Foso</h3>
+        <div class="role">Centre Director</div>
+        <a href="mailto:IVTCdirector@gmail.com">IVTCdirector@gmail.com</a>
+      </div>
+
+      <!-- PARTNERS -->
+      <div class="section-header" style="margin-top:4rem;margin-bottom:2rem;">
+        <span class="section-tag">Network</span>
+        <h2 class="section-title">Partners &amp; Stakeholders</h2>
+        <div class="section-line"></div>
+        <p class="section-sub">IVTC is supported by a dedicated network of organizations and partners committed to inclusive development.</p>
+      </div>
+      <div class="stakeholders-grid" id="stakeholders-list"><!-- JS rendered --></div>
+
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-bottom" style="max-width:100%;justify-content:center;">
+      <p>© 2025 Itjareng Vocational Training Centre · <a onclick="navigate('home')" style="color:var(--gold);">Home</a></p>
+    </div>
+  </footer>
+</div><!-- /about -->
+
+
+<!-- ============================================================
+     PAGE 5 — CONTACT
+============================================================ -->
+<div class="page" id="contact">
+
+  <div class="page-hero">
+    <span class="section-tag">Get In Touch</span>
+    <h1>Contact Us</h1>
+    <p>Have questions about our programs, admissions, or partnerships? We'd love to hear from you.</p>
+  </div>
+
+  <div class="contact-grid">
+
+    <!-- INFO -->
+    <div class="contact-info">
+      <h2>Reach Us</h2>
+      <div class="ci-item"><div class="ci-icon">📍</div><div class="ci-detail"><h4>Location</h4><p>Masianokeng Village, Maseru District</p><p>~15 km east of Maseru City</p><p>~5–10 km from International Airport</p></div></div>
+      <div class="ci-item"><div class="ci-icon">📧</div><div class="ci-detail"><h4>Director's Email</h4><a href="mailto:IVTCdirector@gmail.com">IVTCdirector@gmail.com</a></div></div>
+      <div class="ci-item"><div class="ci-icon">📧</div><div class="ci-detail"><h4>General Enquiries</h4><a href="mailto:itjareng@gmail.com">itjareng@gmail.com</a></div></div>
+      <div class="ci-item"><div class="ci-icon">🌐</div><div class="ci-detail"><h4>Blog</h4><a href="http://itjareng.blogspot.com" target="_blank">itjareng.blogspot.com</a></div></div>
+      <div class="ci-item"><div class="ci-icon">👤</div><div class="ci-detail"><h4>Director</h4><p>Mr. Molise Foso</p></div></div>
+      <div class="ci-item"><div class="ci-icon">🏛</div><div class="ci-detail"><h4>Founded By</h4><p>Lesotho National Association of the Physically Disabled (LNAPD)</p></div></div>
+      <div class="hours-box">
+        <div class="lbl">Operating Hours</div>
+        <p>Monday – Friday: 8:00 AM – 5:00 PM</p>
+        <p>Saturday: 8:00 AM – 1:00 PM</p>
+        <p>Sunday: Closed</p>
+      </div>
+    </div>
+
+    <!-- FORM -->
+    <div class="contact-form-card">
+      <h3>Send a Message</h3>
+      <form class="cform" onsubmit="submitContact(event)">
+        <div class="fg"><label for="c-name">Full Name *</label><input type="text" id="c-name" placeholder="Your full name" required/></div>
+        <div class="fg"><label for="c-email">Email Address *</label><input type="email" id="c-email" placeholder="your@email.com" required/></div>
+        <div class="fg"><label for="c-phone">Phone Number</label><input type="tel" id="c-phone" placeholder="+266 XXXX XXXX"/></div>
+        <div class="fg">
+          <label for="c-subject">Subject *</label>
+          <select id="c-subject" required>
+            <option value="">-- Select Subject --</option>
+            <option>Admission Enquiry</option>
+            <option>Program Information</option>
+            <option>Donation / Partnership</option>
+            <option>Product Purchase Enquiry</option>
+            <option>Media / Press</option>
+            <option>General Enquiry</option>
+          </select>
+        </div>
+        <div class="fg"><label for="c-msg">Message *</label><textarea id="c-msg" rows="5" placeholder="Write your message here…" required></textarea></div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">✦ Send Message</button>
+      </form>
+    </div>
+
+  </div>
+
+  <!-- MAP PLACEHOLDER -->
+  <div style="max-width:1100px;margin:0 auto 4rem;padding:0 2rem;">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.9rem;backdrop-filter:blur(10px);">
+      <span style="font-size:2.8rem;">📍</span>
+      <h3 style="color:var(--gold-light);">Masianokeng Village, Maseru</h3>
+      <p style="color:var(--text-sub);font-size:0.86rem;text-align:center;max-width:380px;">Located ~15 km east of Maseru City and 5–10 km from Moshoeshoe I International Airport. Accessible via public transport.</p>
+      <a href="https://maps.google.com/?q=Masianokeng+Village+Maseru+Lesotho" target="_blank" class="btn btn-outline btn-sm">Open in Google Maps →</a>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-bottom" style="max-width:100%;justify-content:center;">
+      <p>© 2025 Itjareng Vocational Training Centre · <a onclick="navigate('home')" style="color:var(--gold);">Home</a></p>
+    </div>
+  </footer>
+</div><!-- /contact -->
+
+
+<!-- ============================================================
+     PAGE 6 — REGISTER / APPLY
+============================================================ -->
+<div class="page" id="register">
+
+  <div class="page-hero">
+    <span class="section-tag">Admissions 2025</span>
+    <h1>Apply for Admission</h1>
+    <p>Take the first step toward a new future. Complete the application form below. All applications are reviewed by our admissions team. Open to applicants aged 18–45 years.</p>
+  </div>
+
+  <div style="max-width:900px;margin:0 auto;padding:3.5rem 2rem 6rem;">
+
+    <!-- INFO BAR -->
+    <div class="register-info-bar">
+      <div class="rib-item"><strong>✓</strong> Applications open year-round</div>
+      <div class="rib-item"><strong>✓</strong> No minimum education required</div>
+      <div class="rib-item"><strong>✓</strong> Ages 18–45 years eligible</div>
+      <div class="rib-item"><strong>✓</strong> M250 registration fee (one-time)</div>
+      <div class="rib-item"><strong>✓</strong> School fees as per school requirements</div>
+      <div class="rib-item"><strong>✓</strong> Residential accommodation provided</div>
+    </div>
+
+    <!-- ENROLLMENT STATUS -->
+    <div class="enroll-status">
+      <h4>📋 Programs Available for Application</h4>
+      <div class="enroll-chips" id="enroll-chips"><!-- JS rendered --></div>
+    </div>
+
+    <!-- FORM WRAPPER -->
+    <div class="form-wrap" id="form-wrap">
+
+      <!-- STEPPER -->
+      <div class="form-stepper">
+        <div class="step-progress-bar" id="step-progress-bar" style="width:0%"></div>
+        <button class="step-btn active" type="button"><div class="step-circle">1</div><span class="step-lbl">Personal</span></button>
+        <button class="step-btn"        type="button"><div class="step-circle">2</div><span class="step-lbl">Disability</span></button>
+        <button class="step-btn"        type="button"><div class="step-circle">3</div><span class="step-lbl">Education</span></button>
+        <button class="step-btn"        type="button"><div class="step-circle">4</div><span class="step-lbl">Program</span></button>
+      </div>
+
+      <form id="application-form">
+
+        <!-- STEP 1: PERSONAL -->
+        <div class="fsec active">
+          <div class="fsec-title">Step 1 — Personal Information</div>
+          <div class="form-row-2">
+            <div class="fg"><label for="first_name">First Name *</label><input type="text" id="first_name" name="first_name" placeholder="First name" required/></div>
+            <div class="fg"><label for="last_name">Last Name *</label><input type="text" id="last_name" name="last_name" placeholder="Last name" required/></div>
+          </div>
+          <div class="form-row-2">
+            <div class="fg"><label for="dob">Date of Birth *</label><input type="date" id="dob" name="dob" required/></div>
+            <div class="fg">
+              <label for="gender">Gender *</label>
+              <select id="gender" name="gender" required>
+                <option value="">-- Select --</option>
+                <option>Male</option>
+                <option>Female</option>
+                <option>Prefer not to say</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="fg"><label for="national_id">National ID Number *</label><input type="text" id="national_id" name="national_id" placeholder="National ID number" required/></div>
+            <div class="fg"><label for="nationality">Nationality *</label><input type="text" id="nationality" name="nationality" placeholder="e.g. Mosotho" required/></div>
+          </div>
+          <div class="form-row-2">
+            <div class="fg"><label for="phone">Phone Number *</label><input type="tel" id="phone" name="phone" placeholder="+266 XXXX XXXX" required/></div>
+            <div class="fg"><label for="email">Email Address</label><input type="email" id="email" name="email" placeholder="your@email.com"/></div>
+          </div>
+          <div class="fg"><label for="address">Home Address / Village *</label><input type="text" id="address" name="address" placeholder="Village or Town name" required/></div>
+          <div class="form-row-2">
+            <div class="fg">
+              <label for="district">District *</label>
+              <select id="district" name="district" required>
+                <option value="">-- Select District --</option>
+              </select>
+            </div>
+            <div class="fg"><label for="emergency_contact">Emergency Contact Name *</label><input type="text" id="emergency_contact" name="emergency_contact" placeholder="Full name" required/></div>
+          </div>
+          <div class="fg"><label for="emergency_phone">Emergency Contact Phone *</label><input type="tel" id="emergency_phone" name="emergency_phone" placeholder="+266 XXXX XXXX" required/></div>
+        </div>
+
+        <!-- STEP 2: DISABILITY -->
+        <div class="fsec">
+          <div class="fsec-title">Step 2 — Disability Information</div>
+          <div class="fg">
+            <label for="disability_type">Type of Disability *</label>
+            <select id="disability_type" name="disability_type" required>
+              <option value="">-- Select Disability Type --</option>
+            </select>
+          </div>
+          <div class="fg"><label for="disability_description">Describe Your Disability *</label><textarea id="disability_description" name="disability_description" placeholder="Briefly describe your disability and how it affects your daily activities…" rows="4" required></textarea></div>
+          <div class="fg"><label for="support_needs">Special Support Needs (optional)</label><textarea id="support_needs" name="support_needs" placeholder="Do you require any special accommodation, assistive devices, or support?" rows="3"></textarea></div>
+          <div class="fg">
+            <label for="medical_certificate">Medical / Disability Certificate</label>
+            <input type="file" id="medical_certificate" name="medical_certificate" accept=".pdf,.jpg,.jpeg,.png"/>
+            <span class="hint">Accepted: PDF, JPG, PNG</span>
+          </div>
+          <div style="background:rgba(59,130,246,0.07);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:1rem 1.2rem;margin-top:0.5rem;">
+            <p style="color:var(--text-sub);font-size:0.8rem;line-height:1.75;"><strong style="color:var(--royal-bright);">Note:</strong> IVTC accepts individuals with physical, hearing, intellectual, and mental health disabilities. We do not currently cater for the visually impaired. All information is kept strictly confidential.</p>
+          </div>
+        </div>
+
+        <!-- STEP 3: EDUCATION -->
+        <div class="fsec">
+          <div class="fsec-title">Step 3 — Educational Background</div>
+          <div class="fg">
+            <label for="highest_education">Highest Level of Education *</label>
+            <select id="highest_education" name="highest_education" required>
+              <option value="">-- Select --</option>
+              <option>No Formal Education</option>
+              <option>Primary School (Partial)</option>
+              <option>Primary School (Complete)</option>
+              <option>Junior Secondary (Form A–C)</option>
+              <option>Senior Secondary (Form D–E)</option>
+              <option>COSC / LGCSE</option>
+              <option>Vocational Certificate</option>
+              <option>Diploma</option>
+              <option>Degree or Higher</option>
+            </select>
+          </div>
+          <div class="form-row-2">
+            <div class="fg"><label for="school_name">School / Institution Name</label><input type="text" id="school_name" name="school_name" placeholder="Last school attended (if any)"/></div>
+            <div class="fg"><label for="year_completed">Year Last Attended</label><input type="number" id="year_completed" name="year_completed" min="1980" max="2025" placeholder="e.g. 2022"/></div>
+          </div>
+          <div class="fg">
+            <label for="id_copy">Copy of National ID *</label>
+            <input type="file" id="id_copy" name="id_copy" accept=".pdf,.jpg,.jpeg,.png" required/>
+            <span class="hint">National ID or passport copy — PDF, JPG, PNG</span>
+          </div>
+          <div class="fg">
+            <label for="guardian_consent">Guardian Consent Letter (if applicable)</label>
+            <input type="file" id="guardian_consent" name="guardian_consent" accept=".pdf,.jpg,.jpeg,.png"/>
+          </div>
+        </div>
+
+        <!-- STEP 4: PROGRAM -->
+        <div class="fsec">
+          <div class="fsec-title">Step 4 — Program Selection &amp; Motivation</div>
+          <div class="fg">
+            <label for="preferred_program">Preferred Program *</label>
+            <select id="preferred_program" name="preferred_program" required>
+              <option value="">-- Select Program --</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label for="second_choice">Second Choice Program (optional)</label>
+            <select id="second_choice" name="second_choice">
+              <option value="">-- No second choice --</option>
+            </select>
+          </div>
+          <div class="fg"><label for="motivation">Why do you want to join IVTC? *</label><textarea id="motivation" name="motivation" placeholder="Tell us about your goals, what you hope to achieve, and why you selected this program…" rows="5" required></textarea></div>
+          <div class="fg">
+            <label for="heard_from">How did you hear about us?</label>
+            <select id="heard_from" name="heard_from">
+              <option value="">-- Select --</option>
+              <option>Family / Friend</option>
+              <option>Community Leader / Church</option>
+              <option>Social Media (Facebook / WhatsApp)</option>
+              <option>Radio (Ultimate FM / Harvest FM / Radio Lesotho)</option>
+              <option>Hospital / Clinic</option>
+              <option>Government Office</option>
+              <option>LNAPD / LNFOD</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="consent-box">
+            <p>By submitting this application, I confirm that all information provided is accurate and complete. I understand that false information may result in disqualification. I confirm that I am between 18 and 45 years of age and consent to IVTC processing my personal data for admission purposes.</p>
+            <div class="consent-check">
+              <input type="checkbox" id="consent" name="consent" required/>
+              <label for="consent">I agree to the above declaration *</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- NAV BUTTONS -->
+        <div class="form-nav-bar">
+          <button type="button" class="btn btn-ghost" id="btn-prev" onclick="formPrev()" style="visibility:hidden;">← Back</button>
+          <button type="button" class="btn btn-primary" id="btn-next" onclick="formNext()">Continue <span>→</span></button>
+        </div>
+
+      </form>
+    </div><!-- /form-wrap -->
+
+    <!-- SUCCESS SCREEN -->
+    <div class="success-screen" id="success-screen">
+      <div class="success-icon-circle">✓</div>
+      <h3>Application Submitted!</h3>
+      <p>Your application has been received. Our admissions team will review it and contact you within 5–10 business days.</p>
+      <p style="color:var(--gold);margin-top:1rem;font-family:var(--ff-display);font-size:0.78rem;letter-spacing:0.18em;text-transform:uppercase;">Application Reference</p>
+      <div class="ref-id" id="app-ref-id">IVTC-XXXXXX</div>
+      <p style="color:var(--text-sub);font-size:0.83rem;margin-bottom:2rem;">Please save your reference number. You may be contacted at the phone number or email you provided.</p>
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-outline" onclick="resetApplicationForm()">Submit Another Application</button>
+        <button class="btn btn-primary" onclick="navigate('home')">Return Home</button>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="footer-bottom" style="max-width:100%;justify-content:center;">
+      <p>© 2025 Itjareng Vocational Training Centre · <a onclick="navigate('home')" style="color:var(--gold);">Home</a></p>
+    </div>
+  </footer>
+</div><!-- /register -->
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

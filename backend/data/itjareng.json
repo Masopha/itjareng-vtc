@@ -1,0 +1,265 @@
+{
+  "institution": {
+    "name": "Itjareng Vocational Training Centre",
+    "short_name": "IVTC",
+    "tagline": "Empowering Lives Through Skills",
+    "established": 1986,
+    "registered": 1999,
+    "founder": "Lesotho National Association of the Physically Disabled (LNAPD)",
+    "location": "Masianokeng Village, Maseru, Lesotho",
+    "distance_from_maseru": "15 km east",
+    "distance_from_airport": "5-10 km from International Airport",
+    "director": "Mr. Molise Foso",
+    "email": "IVTCdirector@gmail.com",
+    "general_email": "itjareng@gmail.com",
+    "blog": "http://itjareng.blogspot.com",
+    "registration_fee": "M250 (one-time)",
+    "school_fees": "as per school requirements",
+    "max_trainees": "50-70 students",
+    "training_duration": "2 years",
+    "residential": true,
+    "total_served": "400+",
+    "age_range": "18-45 years"
+  },
+  "programs": [
+    {
+      "id": 1,
+      "name": "Metalwork & Welding",
+      "icon": "⚙️",
+      "available": true,
+      "slots_remaining": 8,
+      "description": "Hands-on training in metal fabrication, welding techniques, and structural work. Students learn to create functional metal products for household and commercial use.",
+      "duration": "2 years",
+      "skills": ["Welding", "Metal Fabrication", "Structural Work", "Tool Maintenance"]
+    },
+    {
+      "id": 2,
+      "name": "Carpentry & Joinery",
+      "icon": "🪵",
+      "available": true,
+      "slots_remaining": 5,
+      "description": "Comprehensive woodworking training covering furniture making, joinery, and construction carpentry. Graduates can work independently or for construction firms.",
+      "duration": "2 years",
+      "skills": ["Furniture Making", "Joinery", "Wood Finishing", "Blueprint Reading"]
+    },
+    {
+      "id": 3,
+      "name": "Leatherwork",
+      "icon": "👜",
+      "available": true,
+      "slots_remaining": 6,
+      "description": "Traditional and modern leather craft including bags, shoes, belts and accessories. Products made by students are available for sale by special order.",
+      "duration": "2 years",
+      "skills": ["Leather Cutting", "Stitching", "Design", "Product Finishing"]
+    },
+    {
+      "id": 4,
+      "name": "Sewing & Tailoring",
+      "icon": "🧵",
+      "available": true,
+      "slots_remaining": 3,
+      "description": "Garment construction, alterations, and fashion design. Students develop skills for self-employment or work in the textile industry.",
+      "duration": "2 years",
+      "skills": ["Garment Construction", "Pattern Making", "Alterations", "Fashion Design"]
+    },
+    {
+      "id": 5,
+      "name": "Agriculture",
+      "icon": "🌱",
+      "available": true,
+      "slots_remaining": 7,
+      "description": "Practical agricultural training including piggery, chicken breeding, and vegetable gardening. Equips students with food production skills for livelihood improvement.",
+      "duration": "2 years",
+      "skills": ["Piggery", "Chicken Breeding", "Vegetable Gardening", "Agricultural Management"]
+    },
+    {
+      "id": 6,
+      "name": "Computer Literacy",
+      "icon": "💻",
+      "available": false,
+      "slots_remaining": 0,
+      "description": "Basic to intermediate computer skills including word processing, spreadsheets, and internet use to prepare students for modern workplaces.",
+      "duration": "2 years",
+      "skills": ["Word Processing", "Spreadsheets", "Internet Browsing", "Digital Communication"]
+    },
+    {
+      "id": 7,
+      "name": "Literacy & Numeracy",
+      "icon": "📚",
+      "available": true,
+      "slots_remaining": 10,
+      "description": "Foundation education in reading, writing, and mathematics. Ensures all students can engage fully with their vocational training and future employment.",
+      "duration": "2 years",
+      "skills": ["Reading", "Writing", "Basic Mathematics", "Bookkeeping"]
+    },
+    {
+      "id": 8,
+      "name": "Sign Language",
+      "icon": "🤟",
+      "available": true,
+      "slots_remaining": 4,
+      "description": "Lesotho Sign Language instruction for hearing-impaired students and staff, promoting inclusive communication across the entire centre.",
+      "duration": "2 years",
+      "skills": ["LSL Basics", "Communication", "Interpretation", "Deaf Culture Awareness"]
+    }
+  ],
+  "gallery": {
+    "images": [
+      {
+        "id": 1,
+        "title": "Metalwork Workshop",
+        "caption": "Students practicing metal fabrication techniques in the workshop",
+        "category": "Metalwork",
+        "url": "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=900&q=80"
+      },
+      {
+        "id": 2,
+        "title": "Carpentry Training",
+        "caption": "A trainee working on a furniture joinery project",
+        "category": "Carpentry",
+        "url": "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=900&q=80"
+      },
+      {
+        "id": 3,
+        "title": "Sewing & Tailoring",
+        "caption": "Students learning garment construction and pattern making",
+        "category": "Sewing",
+        "url": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80"
+      },
+      {
+        "id": 4,
+        "title": "Agriculture Program",
+        "caption": "Trainees tending to the vegetable garden on campus",
+        "category": "Agriculture",
+        "url": "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=900&q=80"
+      },
+      {
+        "id": 5,
+        "title": "Leatherwork Craft",
+        "caption": "Handcrafted leather products made by IVTC students",
+        "category": "Leatherwork",
+        "url": "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=900&q=80"
+      },
+      {
+        "id": 6,
+        "title": "Computer Literacy Class",
+        "caption": "Students building digital skills for the modern workplace",
+        "category": "Computer",
+        "url": "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=900&q=80"
+      },
+      {
+        "id": 7,
+        "title": "Campus Life",
+        "caption": "The Itjareng VTC residential campus in Masianokeng",
+        "category": "Campus",
+        "url": "https://images.unsplash.com/photo-1562774053-701939374585?w=900&q=80"
+      },
+      {
+        "id": 8,
+        "title": "Graduation Ceremony",
+        "caption": "Proud graduates receiving their vocational certificates",
+        "category": "Events",
+        "url": "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=900&q=80"
+      },
+      {
+        "id": 9,
+        "title": "Student Community",
+        "caption": "Inclusive support systems that empower every student",
+        "category": "Campus",
+        "url": "https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?w=900&q=80"
+      },
+      {
+        "id": 10,
+        "title": "Skills for Life",
+        "caption": "Practical hands-on training that prepares students for independence",
+        "category": "Training",
+        "url": "https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=900&q=80"
+      }
+    ],
+    "videos": [
+      {
+        "id": 1,
+        "title": "Disability Inclusion & Vocational Training",
+        "description": "How vocational training creates economic independence for people with disabilities.",
+        "youtube_id": "tFkpVa4IHMA",
+        "duration": "4:32",
+        "category": "About"
+      },
+      {
+        "id": 2,
+        "title": "Skills That Transform Lives",
+        "description": "Inspiring stories of how practical training changes lives and communities.",
+        "youtube_id": "xYzK9GZUR5Y",
+        "duration": "6:15",
+        "category": "Stories"
+      },
+      {
+        "id": 3,
+        "title": "Empowering Disabled Youth in Africa",
+        "description": "Stories of inclusion and empowerment from the African disability community.",
+        "youtube_id": "O1hK0ThZJ8Y",
+        "duration": "5:48",
+        "category": "Community"
+      },
+      {
+        "id": 4,
+        "title": "Leatherwork & Artisan Craft",
+        "description": "A look at traditional leathercraft and how artisan skills create livelihoods.",
+        "youtube_id": "VY7DKzHw6dU",
+        "duration": "3:20",
+        "category": "Programs"
+      },
+      {
+        "id": 5,
+        "title": "Carpentry & Woodworking",
+        "description": "Introduction to carpentry techniques taught in vocational training programs.",
+        "youtube_id": "1C9T-j7QDNE",
+        "duration": "7:11",
+        "category": "Programs"
+      },
+      {
+        "id": 6,
+        "title": "Agriculture for Youth Empowerment",
+        "description": "How farming skills and agricultural training transform rural communities.",
+        "youtube_id": "N5dN4aqmFLo",
+        "duration": "5:03",
+        "category": "Programs"
+      }
+    ]
+  },
+  "key_facts": [
+    { "label": "Established", "value": "1986" },
+    { "label": "Students Served", "value": "400+" },
+    { "label": "Training Duration", "value": "2 Years" },
+    { "label": "Registration Fee", "value": "M250" },
+    { "label": "Programs Offered", "value": "8 Vocational" },
+    { "label": "Max Capacity", "value": "70 Students" }
+  ],
+  "stakeholders": [
+    { "name": "LNAPD", "role": "Founding & Governing Body" },
+    { "name": "SMART Leadership Transformation", "role": "Support Partner" },
+    { "name": "Basotho Educational Trust", "role": "UK Funding Partner" },
+    { "name": "Ministry of Education", "role": "Regulatory Authority" },
+    { "name": "LNFOD", "role": "Disability Federation Partner" }
+  ],
+  "disability_types": [
+    "Physical Disability",
+    "Hearing Impairment",
+    "Intellectual Disability",
+    "Mental Health Condition",
+    "Multiple Disabilities",
+    "Other"
+  ],
+  "districts": [
+    "Maseru",
+    "Berea",
+    "Leribe",
+    "Butha-Buthe",
+    "Mokhotlong",
+    "Thaba-Tseka",
+    "Qacha's Nek",
+    "Quthing",
+    "Mohale's Hoek",
+    "Mafeteng"
+  ]
+}
