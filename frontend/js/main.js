@@ -18,11 +18,12 @@ let currentPage = 'home';
 ============================================================ */
 async function boot() {
   try {
-    const res = await fetch('data/itjareng.json');
+    const res = await fetch(window.API_BASE_URL + '/api/data');
     if (!res.ok) throw new Error('fetch failed');
-    DATA = await res.json();
+    const json = await res.json();
+    DATA = json.data;
   } catch (e) {
-    console.warn('Could not load itjareng.json, using fallback data');
+    console.warn('Could not load /api/data, using fallback data');
     DATA = fallbackData();
   }
   initAll();
@@ -687,3 +688,151 @@ function fallbackData() {
    START
 ============================================================ */
 document.addEventListener('DOMContentLoaded', boot);
+/* ============================================================
+   MY APPLICATIONS — Visitor CRUD
+============================================================ */
+let MY_APPS = [];
+
+async function loadMyApplications() {
+  const container = document.getElementById('my-apps-list');
+  if (!container) return;
+  container.innerHTML = '<p style="color:var(--text-sub);text-align:center;padding:2rem;">Loading your applications…</p>';
+  try {
+    const res = await fetch(window.API_BASE_URL + '/api/my-applications', { credentials: 'include' });
+    const data = await res.json();
+    if (data.success) {
+      MY_APPS = data.data;
+      renderMyApplications();
+    } else {
+      container.innerHTML = '<p style="color:#f87171;text-align:center;padding:2rem;">Could not load applications.</p>';
+    }
+  } catch (e) {
+    container.innerHTML = '<p style="color:#f87171;text-align:center;padding:2rem;">Cannot connect to server.</p>';
+  }
+}
+
+function renderMyApplications() {
+  const container = document.getElementById('my-apps-list');
+  if (!container) return;
+  if (!MY_APPS.length) {
+    container.innerHTML = `
+      <div style="text-align:center;padding:3rem;color:var(--text-sub);">
+        <div style="font-size:3rem;margin-bottom:1rem;">📋</div>
+        <p>You have not submitted any applications yet.</p>
+        <button class="btn btn-primary" style="margin-top:1rem;" onclick="navigate('register')">✦ Apply Now</button>
+      </div>`;
+    return;
+  }
+  container.innerHTML = MY_APPS.map(a => `
+    <div style="background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin-bottom:1.25rem;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:0.75rem;margin-bottom:1rem;">
+        <div>
+          <code style="font-size:0.7rem;color:var(--gold);letter-spacing:0.1em;">${escApp(a.applicationId)}</code>
+          <h4 style="color:var(--white);margin-top:0.25rem;font-size:1rem;">${escApp(a.first_name)} ${escApp(a.last_name)}</h4>
+          <p style="color:var(--text-sub);font-size:0.78rem;">Submitted: ${fmtMyDate(a.timestamp)}</p>
+        </div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <button onclick="openMyEditModal('${escApp(a.applicationId)}')"
+            style="padding:0.4rem 0.9rem;border-radius:7px;border:1px solid rgba(59,130,246,0.4);background:rgba(59,130,246,0.12);color:var(--royal-bright);font-size:0.75rem;cursor:pointer;">
+            ✏️ Edit
+          </button>
+          <button onclick="deleteMyApp('${escApp(a.applicationId)}')"
+            style="padding:0.4rem 0.9rem;border-radius:7px;border:1px solid rgba(220,38,38,0.35);background:rgba(220,38,38,0.1);color:#f87171;font-size:0.75rem;cursor:pointer;">
+            🗑 Withdraw
+          </button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.6rem;">
+        ${myField('Program', a.preferred_program)}
+        ${myField('Disability', a.disability_type)}
+        ${myField('District', a.district)}
+        ${myField('Phone', a.phone)}
+        ${a.lastEditedAt ? myField('Last Edited', fmtMyDate(a.lastEditedAt)) : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function myField(label, val) {
+  return `<div style="background:rgba(7,21,41,0.6);border:1px solid var(--border);border-radius:8px;padding:0.6rem 0.85rem;">
+    <div style="font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-sub);margin-bottom:0.2rem;">${label}</div>
+    <div style="color:var(--white);font-size:0.8rem;">${escApp(val || '—')}</div>
+  </div>`;
+}
+
+function fmtMyDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function escApp(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function openMyEditModal(appId) {
+  const a = MY_APPS.find(x => x.applicationId === appId);
+  if (!a) return;
+  document.getElementById('my-edit-id').value = appId;
+  document.getElementById('my-edit-phone').value = a.phone || '';
+  document.getElementById('my-edit-address').value = a.address || '';
+  document.getElementById('my-edit-emergency-contact').value = a.emergency_contact || '';
+  document.getElementById('my-edit-emergency-phone').value = a.emergency_phone || '';
+  document.getElementById('my-edit-program').value = a.preferred_program || '';
+  document.getElementById('my-edit-motivation').value = a.motivation || '';
+  document.getElementById('my-edit-disability-desc').value = a.disability_description || '';
+  document.getElementById('my-edit-modal').style.display = 'flex';
+}
+
+function closeMyEditModal() {
+  document.getElementById('my-edit-modal').style.display = 'none';
+}
+
+async function saveMyEdit() {
+  const appId = document.getElementById('my-edit-id').value;
+  const payload = {
+    phone: document.getElementById('my-edit-phone').value.trim(),
+    address: document.getElementById('my-edit-address').value.trim(),
+    emergency_contact: document.getElementById('my-edit-emergency-contact').value.trim(),
+    emergency_phone: document.getElementById('my-edit-emergency-phone').value.trim(),
+    preferred_program: document.getElementById('my-edit-program').value,
+    motivation: document.getElementById('my-edit-motivation').value.trim(),
+    disability_description: document.getElementById('my-edit-disability-desc').value.trim()
+  };
+  try {
+    const res = await fetch(window.API_BASE_URL + `/api/my-applications/${appId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      closeMyEditModal();
+      await loadMyApplications();
+      showToast('Application updated successfully!', 'success');
+    } else {
+      showToast(data.message || 'Update failed.', 'error');
+    }
+  } catch (e) {
+    showToast('Cannot connect to server.', 'error');
+  }
+}
+
+async function deleteMyApp(appId) {
+  if (!confirm('Withdraw this application? This cannot be undone.')) return;
+  try {
+    const res = await fetch(window.API_BASE_URL + `/api/my-applications/${appId}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    });
+    const data = await res.json();
+    if (data.success) {
+      await loadMyApplications();
+      showToast('Application withdrawn.', 'info');
+    } else {
+      showToast(data.message || 'Could not delete.', 'error');
+    }
+  } catch (e) {
+    showToast('Cannot connect to server.', 'error');
+  }
+}

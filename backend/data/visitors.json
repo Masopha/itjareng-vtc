@@ -1,17 +1,5 @@
 [
   {
-    "userId": "USR-1779101578201",
-    "username": "fantisi",
-    "fullName": "Fantisi lebo",
-    "email": "lebo@gmail.com",
-    "phone": "+26645454567",
-    "gender": "Male",
-    "registeredAt": "2026-05-18T10:52:58.201Z",
-    "loginAt": "2026-05-18T10:53:23.362Z",
-    "logoutAt": null,
-    "status": "online"
-  },
-  {
     "userId": "USR-1779101914175",
     "username": "yeso",
     "fullName": "Yeso Thabo",
@@ -19,20 +7,20 @@
     "phone": "+266432554252",
     "gender": "Female",
     "registeredAt": "2026-05-18T10:58:34.175Z",
-    "loginAt": "2026-05-19T14:06:10.367Z",
-    "logoutAt": "2026-05-19T14:07:03.244Z",
+    "loginAt": "2026-05-20T10:59:32.980Z",
+    "logoutAt": "2026-05-20T10:59:53.193Z",
     "status": "offline"
   },
   {
-    "userId": "USR-1779103015188",
-    "username": "khahliso",
-    "fullName": "Khahliso Thabo",
-    "email": "khahliso@gmail.com",
+    "userId": "USR-1779274836157",
+    "username": "lerato",
+    "fullName": "Fantisi lebo",
+    "email": "lerato@gmail.com",
     "phone": "+26645454567",
-    "gender": "Male",
-    "registeredAt": "2026-05-18T11:16:55.188Z",
-    "loginAt": "2026-05-18T11:17:10.841Z",
-    "logoutAt": "2026-05-18T11:17:41.819Z",
+    "gender": "Prefer not to say",
+    "registeredAt": "2026-05-20T11:00:36.157Z",
+    "loginAt": "2026-05-20T11:00:50.534Z",
+    "logoutAt": "2026-05-20T11:03:04.910Z",
     "status": "offline"
   }
 ]

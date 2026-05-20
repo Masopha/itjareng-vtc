@@ -12,7 +12,7 @@ const fs       = require('fs');
 const path     = require('path');
 
 const app  = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 /* ============================================================
    PATHS TO JSON DATA FILES
@@ -30,18 +30,40 @@ if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 if (!fs.existsSync(USERS_FILE))    fs.writeFileSync(USERS_FILE,    '[]', 'utf8');
 if (!fs.existsSync(VISITORS_FILE)) fs.writeFileSync(VISITORS_FILE, '[]', 'utf8');
 if (!fs.existsSync(APPS_FILE))     fs.writeFileSync(APPS_FILE,     '[]', 'utf8');
+if (!fs.existsSync(ITJARENG_FILE)) {
+  // Create default itjareng.json if not exists
+  const defaultData = {
+    institution: { name: "Itjareng Vocational Training Centre", short_name: "IVTC" },
+    programs: [],
+    gallery: { images: [], videos: [] },
+    key_facts: [],
+    stakeholders: [],
+    disability_types: ["Physical Disability", "Hearing Impairment", "Intellectual Disability", "Mental Health Condition", "Multiple Disabilities", "Other"],
+    districts: ["Maseru", "Berea", "Leribe", "Butha-Buthe", "Mokhotlong", "Thaba-Tseka", "Qacha's Nek", "Quthing", "Mohale's Hoek", "Mafeteng"]
+  };
+  fs.writeFileSync(ITJARENG_FILE, JSON.stringify(defaultData, null, 2), 'utf8');
+}
 
 /* ============================================================
    MIDDLEWARE — ORDER MATTERS
-   1. CORS
+   1. CORS — Allow multiple origins
    2. Body parsers
-   3. Session          ← must be before any route that uses req.session
-   4. Static files     ← last, so API routes take priority
+   3. Session
+   4. Static files
 ============================================================ */
 
-// 1. CORS — allow same origin (served from port 3000)
+// 1. CORS — allow localhost frontend (5500) and backend (3000)
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:5500', 'http://127.0.0.1:5500'];
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5500'],
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   credentials: true
 }));
 
@@ -49,7 +71,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 3. Session — MUST come before routes and static
+// 3. Session — MUST come before routes
 app.use(session({
   secret: 'ivtc-secret-key-2025',
   resave: false,
@@ -117,7 +139,6 @@ function requireAdmin(req, res, next) {
 
 /* ============================================================
    ROUTE: GET /api/session
-   Called by auth.js on every page load
 ============================================================ */
 app.get('/api/session', (req, res) => {
   if (!req.session || !req.session.user) {
@@ -128,7 +149,6 @@ app.get('/api/session', (req, res) => {
 
 /* ============================================================
    ROUTE: GET /api/data
-   Serves itjareng.json (programs, gallery, etc.)
 ============================================================ */
 app.get('/api/data', (req, res) => {
   const data = readJSON(ITJARENG_FILE);
@@ -349,6 +369,7 @@ app.post('/api/application', requireLogin, (req, res) => {
     }
 
     console.log(`📋 New application: ${data.applicationId} by ${data.first_name} ${data.last_name}`);
+    console.log(`📊 Total applications now: ${apps.length}`);
     return res.json({ success: true, applicationId: data.applicationId });
 
   } catch (err) {
@@ -358,25 +379,124 @@ app.post('/api/application', requireLogin, (req, res) => {
 });
 
 /* ============================================================
+   ROUTE: GET /api/my-applications
+============================================================ */
+app.get('/api/my-applications', requireLogin, (req, res) => {
+  try {
+    const userId = req.session.user.userId;
+    const username = req.session.user.username;
+    const apps = readJSON(APPS_FILE).filter(a =>
+      a.submittedByUserId === userId || a.submittedByUsername === username
+    );
+    return res.json({ success: true, data: apps });
+  } catch (err) {
+    console.error('My-applications error:', err);
+    return res.json({ success: false, message: 'Server error fetching your applications.' });
+  }
+});
+
+/* ============================================================
+   ROUTE: PUT /api/my-applications/:id
+============================================================ */
+app.put('/api/my-applications/:id', requireLogin, (req, res) => {
+  try {
+    const appId  = req.params.id;
+    const userId = req.session.user.userId;
+    const username = req.session.user.username;
+    const apps   = readJSON(APPS_FILE);
+    const idx    = apps.findIndex(a =>
+      a.applicationId === appId &&
+      (a.submittedByUserId === userId || a.submittedByUsername === username)
+    );
+
+    if (idx === -1) {
+      return res.json({ success: false, message: 'Application not found or access denied.' });
+    }
+
+    const allowed = [
+      'first_name','last_name','phone','email','address','district',
+      'emergency_contact','emergency_phone','disability_type',
+      'disability_description','support_needs','highest_education',
+      'school_name','year_completed','preferred_program','second_choice',
+      'motivation','heard_from'
+    ];
+
+    allowed.forEach(field => {
+      if (req.body[field] !== undefined) {
+        apps[idx][field] = req.body[field];
+      }
+    });
+
+    apps[idx].lastEditedAt = new Date().toISOString();
+    apps[idx].lastEditedBy = req.session.user.username;
+
+    writeJSON(APPS_FILE, apps);
+    console.log(`✏️ Visitor edited own application: ${appId} by ${username}`);
+    return res.json({ success: true, message: 'Application updated successfully.' });
+
+  } catch (err) {
+    console.error('My-application edit error:', err);
+    return res.json({ success: false, message: 'Server error updating application.' });
+  }
+});
+
+/* ============================================================
+   ROUTE: DELETE /api/my-applications/:id
+============================================================ */
+app.delete('/api/my-applications/:id', requireLogin, (req, res) => {
+  try {
+    const appId  = req.params.id;
+    const userId = req.session.user.userId;
+    const username = req.session.user.username;
+    const apps   = readJSON(APPS_FILE);
+    const filtered = apps.filter(a =>
+      !(a.applicationId === appId &&
+        (a.submittedByUserId === userId || a.submittedByUsername === username))
+    );
+
+    if (filtered.length === apps.length) {
+      return res.json({ success: false, message: 'Application not found or access denied.' });
+    }
+
+    writeJSON(APPS_FILE, filtered);
+    console.log(`🗑️ Visitor deleted own application: ${appId} by ${username}`);
+    return res.json({ success: true, message: 'Application withdrawn successfully.' });
+
+  } catch (err) {
+    console.error('My-application delete error:', err);
+    return res.json({ success: false, message: 'Server error deleting application.' });
+  }
+});
+
+/* ============================================================
    ADMIN ROUTES
 ============================================================ */
 
+// GET all visitors
 app.get('/api/admin/visitors', requireAdmin, (req, res) => {
-  res.json({ success: true, data: readJSON(VISITORS_FILE) });
+  const visitors = readJSON(VISITORS_FILE);
+  console.log(`📊 Admin fetched ${visitors.length} visitors`);
+  res.json({ success: true, data: visitors });
 });
 
+// GET all users
 app.get('/api/admin/users', requireAdmin, (req, res) => {
   const users = readJSON(USERS_FILE).map(u => {
     const { password, ...safe } = u;
     return safe;
   });
+  console.log(`📊 Admin fetched ${users.length} users`);
   res.json({ success: true, data: users });
 });
 
+// GET all applications
 app.get('/api/admin/applications', requireAdmin, (req, res) => {
-  res.json({ success: true, data: readJSON(APPS_FILE) });
+  const apps = readJSON(APPS_FILE);
+  console.log(`📊 Admin fetched ${apps.length} applications`);
+  res.json({ success: true, data: apps });
 });
 
+// PUT edit an application (admin)
 app.put('/api/admin/applications/:id', requireAdmin, (req, res) => {
   try {
     const appId = req.params.id;
@@ -396,7 +516,7 @@ app.put('/api/admin/applications/:id', requireAdmin, (req, res) => {
     };
 
     writeJSON(APPS_FILE, apps);
-    console.log(`✏️ Application edited: ${appId}`);
+    console.log(`✏️ Admin edited application: ${appId}`);
     return res.json({ success: true, message: 'Application updated.' });
 
   } catch (err) {
@@ -405,6 +525,7 @@ app.put('/api/admin/applications/:id', requireAdmin, (req, res) => {
   }
 });
 
+// DELETE an application (admin)
 app.delete('/api/admin/applications/:id', requireAdmin, (req, res) => {
   try {
     const appId    = req.params.id;
@@ -416,7 +537,7 @@ app.delete('/api/admin/applications/:id', requireAdmin, (req, res) => {
     }
 
     writeJSON(APPS_FILE, filtered);
-    console.log(`🗑️ Application deleted: ${appId}`);
+    console.log(`🗑️ Admin deleted application: ${appId}`);
     return res.json({ success: true, message: 'Application deleted.' });
 
   } catch (err) {
@@ -425,6 +546,48 @@ app.delete('/api/admin/applications/:id', requireAdmin, (req, res) => {
   }
 });
 
+// PUT edit a user (admin)
+app.put('/api/admin/users/:id', requireAdmin, (req, res) => {
+  try {
+    const userId = req.params.id;
+    const users  = readJSON(USERS_FILE);
+    const idx    = users.findIndex(u => u.id === userId);
+
+    if (idx === -1) {
+      return res.json({ success: false, message: 'User not found.' });
+    }
+
+    const allowed = ['firstName','lastName','email','phone','gender','username'];
+    allowed.forEach(field => {
+      if (req.body[field] !== undefined) {
+        users[idx][field] = req.body[field];
+      }
+    });
+
+    users[idx].lastEditedAt = new Date().toISOString();
+    writeJSON(USERS_FILE, users);
+
+    const visitors = readJSON(VISITORS_FILE);
+    const vRec = visitors.find(v => v.userId === userId);
+    if (vRec) {
+      vRec.fullName = (req.body.firstName || users[idx].firstName) + ' ' + (req.body.lastName || users[idx].lastName);
+      vRec.email    = req.body.email  || vRec.email;
+      vRec.phone    = req.body.phone  || vRec.phone;
+      vRec.gender   = req.body.gender || vRec.gender;
+      vRec.username = req.body.username || vRec.username;
+      writeJSON(VISITORS_FILE, visitors);
+    }
+
+    console.log(`✏️ Admin edited user: ${userId}`);
+    return res.json({ success: true, message: 'User updated.' });
+
+  } catch (err) {
+    console.error('Edit user error:', err);
+    return res.json({ success: false, message: 'Server error updating user.' });
+  }
+});
+
+// DELETE a user (admin)
 app.delete('/api/admin/users/:id', requireAdmin, (req, res) => {
   try {
     const userId  = req.params.id;
@@ -432,13 +595,14 @@ app.delete('/api/admin/users/:id', requireAdmin, (req, res) => {
     const visitors = readJSON(VISITORS_FILE).filter(v => v.userId !== userId);
     writeJSON(USERS_FILE, users);
     writeJSON(VISITORS_FILE, visitors);
-    console.log(`🗑️ User deleted: ${userId}`);
+    console.log(`🗑️ Admin deleted user: ${userId}`);
     return res.json({ success: true, message: 'User deleted.' });
   } catch (err) {
     return res.json({ success: false, message: 'Server error deleting user.' });
   }
 });
 
+// GET dashboard stats
 app.get('/api/admin/stats', requireAdmin, (req, res) => {
   const visitors = readJSON(VISITORS_FILE);
   const users    = readJSON(USERS_FILE);
@@ -470,6 +634,8 @@ app.listen(PORT, () => {
   console.log('   users.json        →', USERS_FILE);
   console.log('   visitors.json     →', VISITORS_FILE);
   console.log('   applications.json →', APPS_FILE);
+  console.log('');
+  console.log(`📋 Applications in file: ${readJSON(APPS_FILE).length}`);
   console.log('');
   console.log('🔐 Admin login: username=Itjareng  password=itjareng70');
   console.log('');

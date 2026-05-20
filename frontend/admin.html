@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"/>
   <title>Admin Dashboard — Itjareng VTC</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Raleway:wght@300;400;500;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet"/>
   <style>
@@ -35,6 +35,7 @@
       background:rgba(7,21,41,0.97);border-right:1px solid var(--border);
       display:flex;flex-direction:column;
       position:fixed;top:0;left:0;z-index:100;
+      transition:transform 0.3s ease;
     }
     .sb-brand{padding:1.5rem 1.25rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.75rem;}
     .sb-logo{
@@ -66,7 +67,7 @@
     .btn-logout:hover{background:rgba(220,38,38,0.2);border-color:#f87171;}
 
     /* MAIN */
-    #main{margin-left:var(--sidebar);flex:1;padding:2rem;min-height:100vh;}
+    #main{margin-left:var(--sidebar);flex:1;padding:2rem;min-height:100vh;width:calc(100% - var(--sidebar));}
     .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;}
     .topbar-left h2{
       font-family:var(--ff-display);font-size:1.3rem;
@@ -100,8 +101,8 @@
     .panel{display:none;}
     .panel.active{display:block;}
 
-    /* TABLE */
-    .tbl-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);backdrop-filter:blur(10px);overflow:hidden;}
+    /* TABLE - RESPONSIVE */
+    .tbl-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);backdrop-filter:blur(10px);overflow-x:auto;}
     .tbl-header{
       display:flex;align-items:center;justify-content:space-between;
       padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:0.75rem;
@@ -114,7 +115,7 @@
     }
     .search-box input{background:none;border:none;outline:none;color:var(--text);font-family:var(--ff-body);font-size:0.82rem;width:180px;}
     .search-box input::placeholder{color:var(--text-sub);}
-    table{width:100%;border-collapse:collapse;}
+    table{width:100%;border-collapse:collapse;min-width:600px;}
     th{
       background:rgba(26,58,107,0.4);padding:0.75rem 1rem;
       text-align:left;font-family:var(--ff-display);
@@ -131,6 +132,8 @@
     .tbl-empty{text-align:center;color:var(--text-sub);padding:3rem 1rem;font-size:0.85rem;}
     .tbl-footer{padding:0.85rem 1.5rem;border-top:1px solid var(--border);color:var(--text-sub);font-size:0.75rem;}
     .btn-sm{padding:0.32rem 0.75rem;border-radius:6px;border:none;font-size:0.7rem;font-weight:600;cursor:pointer;transition:var(--tr);}
+    .btn-view{background:rgba(201,168,76,0.15);color:var(--gold-light);border:1px solid rgba(201,168,76,0.3);}
+    .btn-view:hover{background:rgba(201,168,76,0.28);}
     .btn-edit{background:rgba(59,130,246,0.18);color:var(--royal-bright);border:1px solid var(--border-blue);}
     .btn-edit:hover{background:rgba(59,130,246,0.3);}
     .btn-delete{background:rgba(220,38,38,0.12);color:#f87171;border:1px solid rgba(220,38,38,0.25);}
@@ -150,7 +153,7 @@
     /* MODAL */
     .modal-overlay{position:fixed;inset:0;z-index:500;background:rgba(7,21,41,0.92);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;padding:2rem;}
     .modal-overlay.open{display:flex;}
-    .modal-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow);}
+    .modal-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:1.5rem;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow);}
     .modal-box h3{font-family:var(--ff-display);color:var(--gold-light);margin-bottom:1.5rem;font-size:1rem;}
     .modal-actions{display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1.75rem;padding-top:1.25rem;border-top:1px solid var(--border);}
     .mfg{margin-bottom:1rem;display:flex;flex-direction:column;}
@@ -165,11 +168,18 @@
     .mfg select option{background:var(--royal-deep);}
     .mrow2{display:grid;grid-template-columns:1fr 1fr;gap:0.85rem;}
 
+    /* DETAIL GRID */
+    .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;}
+    .detail-item{background:rgba(7,21,41,0.6);border:1px solid var(--border);border-radius:8px;padding:0.75rem 1rem;}
+    .detail-item .d-lbl{font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-sub);margin-bottom:0.25rem;}
+    .detail-item .d-val{color:var(--white);font-size:0.83rem;word-break:break-word;}
+    .detail-item.full{grid-column:1/-1;}
+
     /* TOAST */
     .toast{
       position:fixed;bottom:2rem;right:2rem;z-index:9999;
       padding:1rem 1.5rem;border-radius:var(--radius);
-      font-size:0.84rem;box-shadow:var(--shadow);max-width:300px;
+      font-size:0.84rem;box-shadow:var(--shadow);max-width:320px;
       animation:fadeUp 0.3s ease;color:var(--white);border-left:4px solid var(--gold);
     }
     .toast.success{background:rgba(22,163,74,0.25);border-color:#4ade80;}
@@ -177,15 +187,53 @@
     .toast.info{background:var(--royal-deep);border-color:var(--gold);}
     @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:none;}}
 
+    /* MOBILE RESPONSIVE */
     @media(max-width:768px){
-      #sidebar{transform:translateX(-100%);}
+      #sidebar{transform:translateX(-100%);position:fixed;z-index:1000;}
       #sidebar.open{transform:translateX(0);}
-      #main{margin-left:0;}
-      .mrow2{grid-template-columns:1fr;}
+      #main{margin-left:0;width:100%;padding:1rem;}
+      .mrow2,.detail-grid{grid-template-columns:1fr;}
+      .detail-item.full{grid-column:1;}
+      .tbl-header{flex-direction:column;align-items:stretch;}
+      .search-box{width:100%;}
+      .search-box input{width:100%;}
+      .stat-grid{grid-template-columns:1fr;}
+      .topbar{flex-direction:column;align-items:stretch;}
+      .topbar-right{justify-content:space-between;}
+      .btn-sm{padding:0.25rem 0.6rem;font-size:0.65rem;}
+      td,th{padding:0.5rem 0.75rem;}
+      .modal-box{padding:1rem;margin:1rem;}
+    }
+    @media(max-width:480px){
+      .stat-card .sc-val{font-size:1.5rem;}
+      .btn{padding:0.5rem 1rem;font-size:0.75rem;}
+    }
+    
+    /* Mobile menu toggle button */
+    .mobile-menu-toggle{
+      display:none;
+      position:fixed;
+      bottom:1rem;
+      left:1rem;
+      z-index:1001;
+      background:var(--gold);
+      border:none;
+      width:44px;
+      height:44px;
+      border-radius:50%;
+      font-size:1.2rem;
+      cursor:pointer;
+      box-shadow:var(--shadow);
+      color:var(--royal-dark);
+    }
+    @media(max-width:768px){
+      .mobile-menu-toggle{display:flex;align-items:center;justify-content:center;}
     }
   </style>
 </head>
 <body>
+
+<button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰</button>
 
 <aside id="sidebar">
   <div class="sb-brand">
@@ -235,12 +283,12 @@
     <div class="tbl-wrap">
       <div class="tbl-header">
         <h3>👥 All Visitors &amp; Visit Log</h3>
-        <div style="display:flex;gap:0.75rem;align-items:center;">
+        <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
           <div class="search-box"><span>🔍</span><input type="text" id="vis-search" placeholder="Search…" oninput="filterTable('vis')"/></div>
           <button class="btn-ghost" style="font-size:0.75rem;padding:0.4rem 0.9rem;" onclick="loadVisitors()">↻ Refresh</button>
         </div>
       </div>
-      <div style="overflow-x:auto;"><table><thead><tr><th>#</th><th>Full Name</th><th>Username</th><th>Email</th><th>Phone</th><th>Gender</th><th>Registered At</th><th>Login At</th><th>Logout At</th><th>Status</th></tr></thead><tbody id="vis-body"></tbody></table></div>
+      <div style="overflow-x:auto;"><table><thead><tr><th>#</th><th>Full Name</th><th>Username</th><th>Email</th><th>Phone</th><th>Gender</th><th>Registered At</th><th>Login At</th><th>Logout At</th><th>Status</th><th>Actions</th></tr></thead><tbody id="vis-body"></tbody></table></div>
       <div class="tbl-footer" id="vis-count"></div>
     </div>
   </div>
@@ -250,7 +298,7 @@
     <div class="tbl-wrap">
       <div class="tbl-header">
         <h3>📋 Admission Applications</h3>
-        <div style="display:flex;gap:0.75rem;align-items:center;">
+        <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
           <div class="search-box"><span>🔍</span><input type="text" id="app-search" placeholder="Search…" oninput="filterTable('app')"/></div>
           <button class="btn-ghost" style="font-size:0.75rem;padding:0.4rem 0.9rem;" onclick="loadApplications()">↻ Refresh</button>
         </div>
@@ -265,7 +313,7 @@
     <div class="tbl-wrap">
       <div class="tbl-header">
         <h3>🧑‍💻 Registered User Accounts</h3>
-        <div style="display:flex;gap:0.75rem;align-items:center;">
+        <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
           <div class="search-box"><span>🔍</span><input type="text" id="usr-search" placeholder="Search…" oninput="filterTable('usr')"/></div>
           <button class="btn-ghost" style="font-size:0.75rem;padding:0.4rem 0.9rem;" onclick="loadUsers()">↻ Refresh</button>
         </div>
@@ -276,8 +324,8 @@
   </div>
 </main>
 
-<!-- EDIT APP MODAL -->
-<div class="modal-overlay" id="edit-modal">
+<!-- EDIT APPLICATION MODAL -->
+<div class="modal-overlay" id="edit-app-modal">
   <div class="modal-box">
     <h3>✏️ Edit Application</h3>
     <input type="hidden" id="edit-app-id"/>
@@ -297,7 +345,7 @@
           <option>Quthing</option><option>Mohale's Hoek</option><option>Mafeteng</option>
         </select>
       </div>
-      <div class="mfg"><label>Program</label>
+      <div class="mfg"><label>Preferred Program</label>
         <select id="edit-program">
           <option>Metalwork &amp; Welding</option><option>Carpentry &amp; Joinery</option>
           <option>Leatherwork</option><option>Sewing &amp; Tailoring</option>
@@ -313,15 +361,76 @@
       </select>
     </div>
     <div class="mfg"><label>Disability Description</label><textarea id="edit-disability-desc" rows="3"></textarea></div>
-    <div class="mfg"><label>Motivation</label><textarea id="edit-motivation" rows="3"></textarea></div>
+    <div class="mfg"><label>Motivation / Why IVTC</label><textarea id="edit-motivation" rows="3"></textarea></div>
     <div class="modal-actions">
-      <button class="btn-ghost" onclick="closeModal('edit-modal')">Cancel</button>
-      <button class="btn-primary" onclick="saveEdit()">💾 Save Changes</button>
+      <button class="btn-ghost" onclick="closeModal('edit-app-modal')">Cancel</button>
+      <button class="btn-primary" onclick="saveAppEdit()">💾 Save Changes</button>
     </div>
   </div>
 </div>
-<script src="js/config.js"></script>
 
+<!-- VIEW APPLICATION MODAL -->
+<div class="modal-overlay" id="view-app-modal">
+  <div class="modal-box">
+    <h3>👁 Application Details</h3>
+    <div id="view-app-content"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal('view-app-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT USER MODAL -->
+<div class="modal-overlay" id="edit-usr-modal">
+  <div class="modal-box">
+    <h3>✏️ Edit User</h3>
+    <input type="hidden" id="edit-usr-id"/>
+    <div class="mrow2">
+      <div class="mfg"><label>First Name</label><input type="text" id="edit-usr-firstname"/></div>
+      <div class="mfg"><label>Last Name</label><input type="text" id="edit-usr-lastname"/></div>
+    </div>
+    <div class="mrow2">
+      <div class="mfg"><label>Username</label><input type="text" id="edit-usr-username"/></div>
+      <div class="mfg"><label>Email</label><input type="email" id="edit-usr-email"/></div>
+    </div>
+    <div class="mrow2">
+      <div class="mfg"><label>Phone</label><input type="text" id="edit-usr-phone"/></div>
+      <div class="mfg"><label>Gender</label>
+        <select id="edit-usr-gender">
+          <option>Male</option><option>Female</option><option>Prefer not to say</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal('edit-usr-modal')">Cancel</button>
+      <button class="btn-primary" onclick="saveUserEdit()">💾 Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW USER MODAL -->
+<div class="modal-overlay" id="view-usr-modal">
+  <div class="modal-box">
+    <h3>👤 User Details</h3>
+    <div id="view-usr-content"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal('view-usr-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW VISITOR MODAL -->
+<div class="modal-overlay" id="view-vis-modal">
+  <div class="modal-box">
+    <h3>👥 Visitor Details</h3>
+    <div id="view-vis-content"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal('view-vis-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
 <script>
 /* ============================================================
    ADMIN GUARD — check session with server
@@ -338,6 +447,10 @@
   }
 })();
 
+function toggleMobileSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
 /* ============================================================
    CACHED DATA
 ============================================================ */
@@ -349,8 +462,8 @@ let ALL_VISITORS=[], ALL_USERS=[], ALL_APPS=[];
 const panelMeta = {
   dashboard:['Dashboard','Overview of all IVTC website activity'],
   visitors:['Visitors & Visit Log','Everyone who registered and visited the website'],
-  applications:['Admission Applications','All submitted admission applications'],
-  users:['Registered Users','All user accounts created on the website']
+  applications:['Admission Applications','All submitted admission applications — Create, Read, Update, Delete'],
+  users:['Registered Users','All user accounts — Create, Read, Update, Delete']
 };
 
 function showPanel(name, el){
@@ -361,10 +474,12 @@ function showPanel(name, el){
   const [title,sub]=panelMeta[name]||['',''];
   document.getElementById('panel-title').textContent=title;
   document.getElementById('panel-sub').textContent=sub;
-  if(name==='dashboard')   loadDashboard();
-  if(name==='visitors')    loadVisitors();
-  if(name==='applications')loadApplications();
-  if(name==='users')       loadUsers();
+  if(name==='dashboard')    loadDashboard();
+  if(name==='visitors')     loadVisitors();
+  if(name==='applications') loadApplications();
+  if(name==='users')        loadUsers();
+  // Close mobile sidebar after navigation
+  document.getElementById('sidebar').classList.remove('open');
 }
 
 /* ============================================================
@@ -378,6 +493,9 @@ function fmtDate(iso){
 }
 function esc(str){
   return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function ditem(label,val,full){
+  return `<div class="detail-item${full?' full':''}"><div class="d-lbl">${label}</div><div class="d-val">${esc(val||'—')}</div></div>`;
 }
 
 /* ============================================================
@@ -393,7 +511,6 @@ async function loadDashboard(){
       document.getElementById('s-users').textContent    = data.stats.totalUsers;
       document.getElementById('s-apps').textContent     = data.stats.totalApplications;
     }
-    // Load recent visitors
     const vres = await fetch(window.API_BASE_URL + '/api/admin/visitors', { credentials:'include' });
     const vdata = await vres.json();
     if(vdata.success){
@@ -428,21 +545,65 @@ async function loadVisitors(){
 }
 function renderVisitors(list){
   const body=document.getElementById('vis-body');
-  if(!list.length){body.innerHTML=`<tr><td colspan="10" class="tbl-empty">No visitors found.</td></tr>`;
+  if(!list.length){body.innerHTML=`<tr><td colspan="11" class="tbl-empty">No visitors found.</td></tr>`;
     document.getElementById('vis-count').textContent='No records.';return;}
   body.innerHTML=list.map((v,i)=>`
     <tr>
       <td style="color:var(--text-sub);font-size:0.72rem;">${i+1}</td>
       <td style="color:var(--white);font-weight:600;">${esc(v.fullName)}</td>
       <td><code style="font-family:monospace;font-size:0.72rem;color:var(--royal-bright);">@${esc(v.username)}</code></td>
-      <td>${esc(v.email)}</td><td>${esc(v.phone)}</td><td>${esc(v.gender)}</td>
+      <td>${esc(v.email)}</td>
+      <td>${esc(v.phone)}</td>
+      <td>${esc(v.gender)}</td>
       <td style="font-size:0.72rem;">${fmtDate(v.registeredAt)}</td>
       <td style="font-size:0.72rem;">${fmtDate(v.loginAt)}</td>
       <td style="font-size:0.72rem;">${fmtDate(v.logoutAt)}</td>
       <td><span class="badge ${v.status||'registered'}">${v.status||'registered'}</span></td>
+      <td>
+        <div style="display:flex;gap:0.35rem;flex-wrap:wrap;">
+          <button class="btn-sm btn-view" onclick="viewVisitor('${esc(v.userId)}')">👁 View</button>
+          <button class="btn-sm btn-delete" onclick="deleteVisitor('${esc(v.userId)}','${esc(v.username)}')">🗑 Delete</button>
+        </div>
+      </td>
     </tr>
   `).join('');
   document.getElementById('vis-count').textContent=`${list.length} record${list.length!==1?'s':''}`;
+}
+
+// VIEW VISITOR DETAILS
+function viewVisitor(userId){
+  const v=ALL_VISITORS.find(x=>x.userId===userId);
+  if(!v){showToast('Visitor not found.','error');return;}
+  document.getElementById('view-vis-content').innerHTML=`
+    <div class="detail-grid">
+      ${ditem('User ID',v.userId,true)}
+      ${ditem('Full Name',v.fullName)}
+      ${ditem('Username','@'+v.username)}
+      ${ditem('Email',v.email)}
+      ${ditem('Phone',v.phone)}
+      ${ditem('Gender',v.gender)}
+      ${ditem('Status',v.status)}
+      ${ditem('Registered At',fmtDate(v.registeredAt),true)}
+      ${ditem('Last Login',fmtDate(v.loginAt))}
+      ${ditem('Last Logout',fmtDate(v.logoutAt))}
+    </div>
+  `;
+  openModal('view-vis-modal');
+}
+
+// DELETE VISITOR
+async function deleteVisitor(userId, username){
+  if(!confirm(`Delete visitor "${username}"? This will also delete their user account if exists.`)) return;
+  try {
+    const res=await fetch(window.API_BASE_URL+`/api/admin/users/${userId}`,{method:'DELETE',credentials:'include'});
+    const data=await res.json();
+    if(data.success){ 
+      await loadVisitors(); 
+      await loadDashboard(); 
+      showToast(`Visitor ${username} deleted.`,'info'); 
+    }
+    else showToast(data.message,'error');
+  } catch(e){ showToast('Server error.','error'); }
 }
 
 /* ============================================================
@@ -452,9 +613,13 @@ async function loadApplications(){
   try {
     const res = await fetch(window.API_BASE_URL + '/api/admin/applications', { credentials:'include' });
     const data = await res.json();
-    if(data.success){ ALL_APPS=data.data; renderApplications(data.data); }
-  } catch(e){ console.error(e); }
+    if(data.success){ 
+      ALL_APPS=data.data; 
+      renderApplications(data.data); 
+    }
+  } catch(e){ console.error('Load applications error:',e); showToast('Error loading applications','error'); }
 }
+
 function renderApplications(list){
   const body=document.getElementById('app-body');
   if(!list.length){body.innerHTML=`<tr><td colspan="9" class="tbl-empty">No applications found.</td></tr>`;
@@ -464,59 +629,61 @@ function renderApplications(list){
       <td style="color:var(--text-sub);font-size:0.72rem;">${i+1}</td>
       <td><code style="font-family:monospace;font-size:0.7rem;color:var(--gold);">${esc(a.applicationId||'—')}</code></td>
       <td style="color:var(--white);font-weight:600;">${esc(a.first_name||'')} ${esc(a.last_name||'')}</td>
-      <td>${esc(a.phone||'—')}</td><td>${esc(a.district||'—')}</td>
-      <td>${esc(a.preferred_program||'—')}</td><td>${esc(a.disability_type||'—')}</td>
+      <td>${esc(a.phone||'—')}</td>
+      <td>${esc(a.district||'—')}</td>
+      <td>${esc(a.preferred_program||'—')}</td>
+      <td>${esc(a.disability_type||'—')}</td>
       <td style="font-size:0.72rem;">${fmtDate(a.timestamp)}</td>
-      <td><div style="display:flex;gap:0.4rem;">
-        <button class="btn-sm btn-edit" onclick="openEditApp('${esc(a.applicationId)}')">✏️ Edit</button>
-        <button class="btn-sm btn-delete" onclick="deleteApp('${esc(a.applicationId)}')">🗑</button>
-      </div></td>
+      <td>
+        <div style="display:flex;gap:0.35rem;flex-wrap:wrap;">
+          <button class="btn-sm btn-view" onclick="viewApp('${esc(a.applicationId)}')">👁 View</button>
+          <button class="btn-sm btn-edit" onclick="openEditApp('${esc(a.applicationId)}')">✏️ Edit</button>
+          <button class="btn-sm btn-delete" onclick="deleteApp('${esc(a.applicationId)}')">🗑 Delete</button>
+        </div>
+      </td>
     </tr>
   `).join('');
   document.getElementById('app-count').textContent=`${list.length} application${list.length!==1?'s':''}`;
 }
 
-/* ============================================================
-   LOAD USERS
-============================================================ */
-async function loadUsers(){
-  try {
-    const res = await fetch(window.API_BASE_URL + '/api/admin/users', { credentials:'include' });
-    const data = await res.json();
-    if(data.success){ ALL_USERS=data.data; renderUsers(data.data); }
-  } catch(e){ console.error(e); }
-}
-function renderUsers(list){
-  const body=document.getElementById('usr-body');
-  if(!list.length){body.innerHTML=`<tr><td colspan="9" class="tbl-empty">No users registered yet.</td></tr>`;
-    document.getElementById('usr-count').textContent='No users.';return;}
-  body.innerHTML=list.map((u,i)=>`
-    <tr>
-      <td style="color:var(--text-sub);font-size:0.72rem;">${i+1}</td>
-      <td><code style="font-family:monospace;font-size:0.68rem;color:var(--text-sub);">${esc(u.id)}</code></td>
-      <td style="color:var(--white);font-weight:600;">${esc(u.firstName)} ${esc(u.lastName)}</td>
-      <td><code style="font-family:monospace;font-size:0.72rem;color:var(--royal-bright);">@${esc(u.username)}</code></td>
-      <td>${esc(u.email)}</td><td>${esc(u.phone)}</td><td>${esc(u.gender)}</td>
-      <td style="font-size:0.72rem;">${fmtDate(u.registeredAt)}</td>
-      <td><button class="btn-sm btn-delete" onclick="deleteUser('${esc(u.id)}')">🗑 Delete</button></td>
-    </tr>
-  `).join('');
-  document.getElementById('usr-count').textContent=`${list.length} user${list.length!==1?'s':''}`;
+// VIEW full application
+function viewApp(appId){
+  const a=ALL_APPS.find(x=>x.applicationId===appId);
+  if(!a){showToast('Application not found.','error');return;}
+  document.getElementById('view-app-content').innerHTML=`
+    <div class="detail-grid">
+      ${ditem('Reference ID',a.applicationId)}
+      ${ditem('Submitted',fmtDate(a.timestamp))}
+      ${ditem('First Name',a.first_name)}
+      ${ditem('Last Name',a.last_name)}
+      ${ditem('Date of Birth',a.dob)}
+      ${ditem('Gender',a.gender)}
+      ${ditem('National ID',a.national_id)}
+      ${ditem('Nationality',a.nationality)}
+      ${ditem('Phone',a.phone)}
+      ${ditem('Email',a.email)}
+      ${ditem('Address',a.address)}
+      ${ditem('District',a.district)}
+      ${ditem('Emergency Contact',a.emergency_contact)}
+      ${ditem('Emergency Phone',a.emergency_phone)}
+      ${ditem('Disability Type',a.disability_type)}
+      ${ditem('Education',a.highest_education)}
+      ${ditem('School Name',a.school_name)}
+      ${ditem('Year Completed',a.year_completed)}
+      ${ditem('Preferred Program',a.preferred_program)}
+      ${ditem('Second Choice',a.second_choice)}
+      ${ditem('Heard From',a.heard_from)}
+      ${ditem('Submitted By',a.submittedByUsername)}
+      ${ditem('Last Edited',fmtDate(a.lastEditedAt))}
+      ${ditem('Disability Description',a.disability_description,true)}
+      ${ditem('Support Needs',a.support_needs,true)}
+      ${ditem('Motivation',a.motivation,true)}
+    </div>
+  `;
+  openModal('view-app-modal');
 }
 
-/* ============================================================
-   SEARCH / FILTER
-============================================================ */
-function filterTable(type){
-  const q=(document.getElementById(type+'-search')?.value||'').toLowerCase();
-  if(type==='vis') renderVisitors(ALL_VISITORS.filter(v=>[v.fullName,v.username,v.email,v.phone,v.gender,v.status].join(' ').toLowerCase().includes(q)));
-  if(type==='app') renderApplications(ALL_APPS.filter(a=>[a.first_name,a.last_name,a.phone,a.district,a.preferred_program,a.applicationId].join(' ').toLowerCase().includes(q)));
-  if(type==='usr') renderUsers(ALL_USERS.filter(u=>[u.firstName,u.lastName,u.username,u.email,u.phone].join(' ').toLowerCase().includes(q)));
-}
-
-/* ============================================================
-   EDIT APPLICATION
-============================================================ */
+// OPEN EDIT application modal
 function openEditApp(appId){
   const app=ALL_APPS.find(a=>a.applicationId===appId);
   if(!app){showToast('Application not found.','error');return;}
@@ -530,10 +697,11 @@ function openEditApp(appId){
   document.getElementById('edit-disability').value=app.disability_type||'Physical Disability';
   document.getElementById('edit-disability-desc').value=app.disability_description||'';
   document.getElementById('edit-motivation').value=app.motivation||'';
-  openModal('edit-modal');
+  openModal('edit-app-modal');
 }
 
-async function saveEdit(){
+// SAVE application edit
+async function saveAppEdit(){
   const appId=document.getElementById('edit-app-id').value;
   const payload={
     first_name:document.getElementById('edit-firstname').value.trim(),
@@ -547,41 +715,154 @@ async function saveEdit(){
     motivation:document.getElementById('edit-motivation').value.trim()
   };
   try {
-    const res=await fetch(window.API_BASE_URL + `/api/admin/applications/${appId}`,{
+    const res=await fetch(window.API_BASE_URL+`/api/admin/applications/${appId}`,{
       method:'PUT',headers:{'Content-Type':'application/json'},
       credentials:'include',body:JSON.stringify(payload)
     });
     const data=await res.json();
     if(data.success){
-      closeModal('edit-modal');
+      closeModal('edit-app-modal');
       await loadApplications();
       showToast('Application updated successfully!','success');
-    } else { showToast(data.message,'error'); }
+    } else { showToast(data.message||'Update failed.','error'); }
   } catch(e){ showToast('Server error saving changes.','error'); }
 }
 
+// DELETE application
 async function deleteApp(appId){
-  if(!confirm('Delete this application? This cannot be undone.')) return;
+  if(!confirm('Delete this application permanently? This cannot be undone.')) return;
   try {
-    const res=await fetch(window.API_BASE_URL + `/api/admin/applications/${appId}`,{method:'DELETE',credentials:'include'});
+    const res=await fetch(window.API_BASE_URL+`/api/admin/applications/${appId}`,{method:'DELETE',credentials:'include'});
     const data=await res.json();
     if(data.success){ await loadApplications(); await loadDashboard(); showToast('Application deleted.','info'); }
     else showToast(data.message,'error');
   } catch(e){ showToast('Server error.','error'); }
 }
 
-async function deleteUser(userId){
-  if(!confirm('Delete this user? This cannot be undone.')) return;
+/* ============================================================
+   LOAD USERS
+============================================================ */
+async function loadUsers(){
   try {
-    const res=await fetch(window.API_BASE_URL + `/api/admin/users/${userId}`,{method:'DELETE',credentials:'include'});
+    const res = await fetch(window.API_BASE_URL + '/api/admin/users', { credentials:'include' });
+    const data = await res.json();
+    if(data.success){ ALL_USERS=data.data; renderUsers(data.data); }
+  } catch(e){ console.error(e); }
+}
+
+function renderUsers(list){
+  const body=document.getElementById('usr-body');
+  if(!list.length){body.innerHTML=`<tr><td colspan="9" class="tbl-empty">No users registered yet.</td></tr>`;
+    document.getElementById('usr-count').textContent='No users.';return;}
+  body.innerHTML=list.map((u,i)=>`
+    <tr>
+      <td style="color:var(--text-sub);font-size:0.72rem;">${i+1}</td>
+      <td><code style="font-family:monospace;font-size:0.68rem;color:var(--text-sub);">${esc(u.id)}</code></td>
+      <td style="color:var(--white);font-weight:600;">${esc(u.firstName)} ${esc(u.lastName)}</td>
+      <td><code style="font-family:monospace;font-size:0.72rem;color:var(--royal-bright);">@${esc(u.username)}</code></td>
+      <td>${esc(u.email)}</td>
+      <td>${esc(u.phone)}</td>
+      <td>${esc(u.gender)}</td>
+      <td style="font-size:0.72rem;">${fmtDate(u.registeredAt)}</td>
+      <td>
+        <div style="display:flex;gap:0.35rem;flex-wrap:wrap;">
+          <button class="btn-sm btn-view"   onclick="viewUser('${esc(u.id)}')">👁 View</button>
+          <button class="btn-sm btn-edit"   onclick="openEditUser('${esc(u.id)}')">✏️ Edit</button>
+          <button class="btn-sm btn-delete" onclick="deleteUser('${esc(u.id)}')">🗑 Delete</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+  document.getElementById('usr-count').textContent=`${list.length} user${list.length!==1?'s':''}`;
+}
+
+// VIEW full user details
+function viewUser(userId){
+  const u=ALL_USERS.find(x=>x.id===userId);
+  if(!u){showToast('User not found.','error');return;}
+  document.getElementById('view-usr-content').innerHTML=`
+    <div class="detail-grid">
+      ${ditem('User ID',u.id,true)}
+      ${ditem('First Name',u.firstName)}
+      ${ditem('Last Name',u.lastName)}
+      ${ditem('Username','@'+u.username)}
+      ${ditem('Email',u.email)}
+      ${ditem('Phone',u.phone)}
+      ${ditem('Gender',u.gender)}
+      ${ditem('Role',u.role)}
+      ${ditem('Registered At',fmtDate(u.registeredAt),true)}
+      ${u.lastEditedAt?ditem('Last Edited',fmtDate(u.lastEditedAt),true):''}
+    </div>
+  `;
+  openModal('view-usr-modal');
+}
+
+// OPEN EDIT user modal
+function openEditUser(userId){
+  const u=ALL_USERS.find(x=>x.id===userId);
+  if(!u){showToast('User not found.','error');return;}
+  document.getElementById('edit-usr-id').value=userId;
+  document.getElementById('edit-usr-firstname').value=u.firstName||'';
+  document.getElementById('edit-usr-lastname').value=u.lastName||'';
+  document.getElementById('edit-usr-username').value=u.username||'';
+  document.getElementById('edit-usr-email').value=u.email||'';
+  document.getElementById('edit-usr-phone').value=u.phone||'';
+  document.getElementById('edit-usr-gender').value=u.gender||'Male';
+  openModal('edit-usr-modal');
+}
+
+// SAVE user edit
+async function saveUserEdit(){
+  const userId=document.getElementById('edit-usr-id').value;
+  const payload={
+    firstName:document.getElementById('edit-usr-firstname').value.trim(),
+    lastName:document.getElementById('edit-usr-lastname').value.trim(),
+    username:document.getElementById('edit-usr-username').value.trim().toLowerCase(),
+    email:document.getElementById('edit-usr-email').value.trim(),
+    phone:document.getElementById('edit-usr-phone').value.trim(),
+    gender:document.getElementById('edit-usr-gender').value
+  };
+  if(!payload.firstName||!payload.lastName||!payload.username||!payload.email){
+    showToast('Please fill in all required fields.','error');return;
+  }
+  try {
+    const res=await fetch(window.API_BASE_URL+`/api/admin/users/${userId}`,{
+      method:'PUT',headers:{'Content-Type':'application/json'},
+      credentials:'include',body:JSON.stringify(payload)
+    });
     const data=await res.json();
-    if(data.success){ await loadUsers(); await loadDashboard(); showToast('User deleted.','info'); }
+    if(data.success){
+      closeModal('edit-usr-modal');
+      await loadUsers();
+      await loadVisitors();
+      showToast('User updated successfully!','success');
+    } else { showToast(data.message||'Update failed.','error'); }
+  } catch(e){ showToast('Server error saving changes.','error'); }
+}
+
+// DELETE user
+async function deleteUser(userId){
+  if(!confirm('Delete this user account permanently? This cannot be undone.')) return;
+  try {
+    const res=await fetch(window.API_BASE_URL+`/api/admin/users/${userId}`,{method:'DELETE',credentials:'include'});
+    const data=await res.json();
+    if(data.success){ await loadUsers(); await loadVisitors(); await loadDashboard(); showToast('User deleted.','info'); }
     else showToast(data.message,'error');
   } catch(e){ showToast('Server error.','error'); }
 }
 
 /* ============================================================
-   MODAL / LOGOUT / TOAST
+   SEARCH / FILTER
+============================================================ */
+function filterTable(type){
+  const q=(document.getElementById(type+'-search')?.value||'').toLowerCase();
+  if(type==='vis') renderVisitors(ALL_VISITORS.filter(v=>[v.fullName,v.username,v.email,v.phone,v.gender,v.status].join(' ').toLowerCase().includes(q)));
+  if(type==='app') renderApplications(ALL_APPS.filter(a=>[a.first_name,a.last_name,a.phone,a.district,a.preferred_program,a.applicationId,a.disability_type].join(' ').toLowerCase().includes(q)));
+  if(type==='usr') renderUsers(ALL_USERS.filter(u=>[u.firstName,u.lastName,u.username,u.email,u.phone,u.gender].join(' ').toLowerCase().includes(q)));
+}
+
+/* ============================================================
+   MODAL HELPERS
 ============================================================ */
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
@@ -589,12 +870,18 @@ document.querySelectorAll('.modal-overlay').forEach(m=>{
   m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});
 });
 
+/* ============================================================
+   LOGOUT
+============================================================ */
 async function doLogout(){
   if(!confirm('Are you sure you want to logout?')) return;
-  try{ await fetch(window.API_BASE_URL + '/api/logout',{method:'POST',credentials:'include'}); }catch(e){}
+  try{ await fetch(window.API_BASE_URL+'/api/logout',{method:'POST',credentials:'include'}); }catch(e){}
   window.location.href='login.html';
 }
 
+/* ============================================================
+   TOAST
+============================================================ */
 function showToast(msg,type='info'){
   document.querySelectorAll('.toast').forEach(t=>t.remove());
   const t=document.createElement('div');

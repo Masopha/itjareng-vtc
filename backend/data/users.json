@@ -1,17 +1,5 @@
 [
   {
-    "id": "USR-1779101578201",
-    "firstName": "Fantisi",
-    "lastName": "lebo",
-    "email": "lebo@gmail.com",
-    "phone": "+26645454567",
-    "gender": "Male",
-    "username": "fantisi",
-    "password": "$2b$10$ckgGlYtn0y2Db1ju1OTQ2O.0Lj.QeBzuEsNH4izjCzIXimvYDQkne",
-    "registeredAt": "2026-05-18T10:52:58.201Z",
-    "role": "visitor"
-  },
-  {
     "id": "USR-1779101914175",
     "firstName": "Yeso",
     "lastName": "Thabo",
@@ -24,15 +12,15 @@
     "role": "visitor"
   },
   {
-    "id": "USR-1779103015188",
-    "firstName": "Khahliso",
-    "lastName": "Thabo",
-    "email": "khahliso@gmail.com",
+    "id": "USR-1779274836157",
+    "firstName": "Fantisi",
+    "lastName": "lebo",
+    "email": "lerato@gmail.com",
     "phone": "+26645454567",
-    "gender": "Male",
-    "username": "khahliso",
-    "password": "$2b$10$MMBMFL4hTkAuCeIbxPxaRe69lFMKMQU6DAct76OClFfr7jdTT4.SC",
-    "registeredAt": "2026-05-18T11:16:55.188Z",
+    "gender": "Prefer not to say",
+    "username": "lerato",
+    "password": "$2b$10$5FvI.xTxUV4VrdJfbCEmtu.szJ7mj3rKaW5QWaZZFE/pZIELUQqO.",
+    "registeredAt": "2026-05-20T11:00:36.157Z",
     "role": "visitor"
   }
 ]
