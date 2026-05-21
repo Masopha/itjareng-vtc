@@ -1,124 +1,179 @@
 /* ============================================================
    ITJARENG VTC — NODE.JS BACKEND SERVER
-   Express + JSON file storage
+   Express + MongoDB (Mongoose) + Atlas
    Run with: node server.js
 ============================================================ */
+
+require('dotenv').config();
 
 const express  = require('express');
 const cors     = require('cors');
 const bcrypt   = require('bcryptjs');
 const session  = require('express-session');
-const fs       = require('fs');
+const mongoose = require('mongoose');
 const path     = require('path');
+const fs       = require('fs');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
 /* ============================================================
-   PATHS TO JSON DATA FILES
+   MONGODB CONNECTION
 ============================================================ */
-const DATA_DIR      = path.join(__dirname, 'data');
-const USERS_FILE    = path.join(DATA_DIR, 'users.json');
-const VISITORS_FILE = path.join(DATA_DIR, 'visitors.json');
-const APPS_FILE     = path.join(DATA_DIR, 'applications.json');
-const ITJARENG_FILE = path.join(DATA_DIR, 'itjareng.json');
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+  console.error('❌ MONGODB_URI not found in .env file!');
+  console.error('   Please create a .env file with your MongoDB connection string.');
+  process.exit(1);
+}
+
+mongoose.connect(MONGODB_URI)
+  .then(() => {
+    console.log('');
+    console.log('✅ Connected to MongoDB Atlas successfully!');
+    console.log('   Database: itjareng');
+  })
+  .catch(err => {
+    console.error('❌ MongoDB connection failed:', err.message);
+    process.exit(1);
+  });
 
 /* ============================================================
-   ENSURE DATA DIRECTORY EXISTS
+   MONGOOSE SCHEMAS & MODELS
+   Collections are created automatically on first use
 ============================================================ */
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-if (!fs.existsSync(USERS_FILE))    fs.writeFileSync(USERS_FILE,    '[]', 'utf8');
-if (!fs.existsSync(VISITORS_FILE)) fs.writeFileSync(VISITORS_FILE, '[]', 'utf8');
-if (!fs.existsSync(APPS_FILE))     fs.writeFileSync(APPS_FILE,     '[]', 'utf8');
-if (!fs.existsSync(ITJARENG_FILE)) {
-  // Create default itjareng.json if not exists
-  const defaultData = {
-    institution: { name: "Itjareng Vocational Training Centre", short_name: "IVTC" },
-    programs: [],
-    gallery: { images: [], videos: [] },
-    key_facts: [],
-    stakeholders: [],
-    disability_types: ["Physical Disability", "Hearing Impairment", "Intellectual Disability", "Mental Health Condition", "Multiple Disabilities", "Other"],
-    districts: ["Maseru", "Berea", "Leribe", "Butha-Buthe", "Mokhotlong", "Thaba-Tseka", "Qacha's Nek", "Quthing", "Mohale's Hoek", "Mafeteng"]
-  };
-  fs.writeFileSync(ITJARENG_FILE, JSON.stringify(defaultData, null, 2), 'utf8');
+
+/* ----- USER SCHEMA ----- */
+const userSchema = new mongoose.Schema({
+  userId:       { type: String, required: true, unique: true },
+  firstName:    { type: String, required: true, trim: true },
+  lastName:     { type: String, required: true, trim: true },
+  email:        { type: String, required: true, unique: true, lowercase: true, trim: true },
+  phone:        { type: String, required: true, trim: true },
+  gender:       { type: String, required: true },
+  username:     { type: String, required: true, unique: true, lowercase: true, trim: true },
+  password:     { type: String, required: true },
+  role:         { type: String, default: 'visitor' },
+  registeredAt: { type: Date, default: Date.now },
+  lastEditedAt: { type: Date }
+});
+
+/* ----- VISITOR SCHEMA (login/logout log) ----- */
+const visitorSchema = new mongoose.Schema({
+  userId:       { type: String, required: true },
+  username:     { type: String, required: true },
+  fullName:     { type: String },
+  email:        { type: String },
+  phone:        { type: String },
+  gender:       { type: String },
+  registeredAt: { type: Date },
+  loginAt:      { type: Date, default: null },
+  logoutAt:     { type: Date, default: null },
+  status:       { type: String, default: 'registered' }
+});
+
+/* ----- APPLICATION SCHEMA ----- */
+const applicationSchema = new mongoose.Schema({
+  applicationId:       { type: String, required: true, unique: true },
+  first_name:          { type: String },
+  last_name:           { type: String },
+  dob:                 { type: String },
+  gender:              { type: String },
+  national_id:         { type: String },
+  nationality:         { type: String },
+  phone:               { type: String },
+  email:               { type: String },
+  address:             { type: String },
+  district:            { type: String },
+  emergency_contact:   { type: String },
+  emergency_phone:     { type: String },
+  disability_type:     { type: String },
+  disability_description: { type: String },
+  support_needs:       { type: String },
+  highest_education:   { type: String },
+  school_name:         { type: String },
+  year_completed:      { type: String },
+  preferred_program:   { type: String },
+  second_choice:       { type: String },
+  motivation:          { type: String },
+  heard_from:          { type: String },
+  consent:             { type: String },
+  submittedByUserId:   { type: String },
+  submittedByUsername: { type: String },
+  timestamp:           { type: Date, default: Date.now },
+  lastEditedAt:        { type: Date },
+  lastEditedBy:        { type: String }
+}, { strict: false }); // strict:false allows extra fields from the form
+
+const User        = mongoose.model('User',        userSchema);
+const Visitor     = mongoose.model('Visitor',     visitorSchema);
+const Application = mongoose.model('Application', applicationSchema);
+
+/* ============================================================
+   ITJARENG.JSON — still served from file (content data)
+============================================================ */
+const ITJARENG_FILE = path.join(__dirname, 'data', 'itjareng.json');
+
+function readItjareng() {
+  try {
+    return JSON.parse(fs.readFileSync(ITJARENG_FILE, 'utf8'));
+  } catch (e) {
+    console.error('❌ Could not read itjareng.json:', e.message);
+    return {};
+  }
 }
 
 /* ============================================================
-   MIDDLEWARE — ORDER MATTERS
-   1. CORS — Allow multiple origins
-   2. Body parsers
-   3. Session
-   4. Static files
+   ADMIN CREDENTIALS (hardcoded as before)
+============================================================ */
+const ADMIN = {
+  username: 'Itjareng',
+  password: 'itjareng70',
+  role:     'admin',
+  fullName: 'IVTC Administrator'
+};
+
+/* ============================================================
+   MIDDLEWARE
 ============================================================ */
 
-// 1. CORS — allow localhost frontend (5500) and backend (3000)
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:5500', 'http://127.0.0.1:5500'];
+// CORS — allow frontend on port 5500 and backend on 3000
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5500',
+  'http://127.0.0.1:5500',
+  'http://127.0.0.1:3000'
+];
 app.use(cors({
   origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
+      return callback(new Error('CORS policy: origin not allowed'), false);
     }
     return callback(null, true);
   },
   credentials: true
 }));
 
-// 2. Body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 3. Session — MUST come before routes
+// Session
 app.use(session({
-  secret: 'ivtc-secret-key-2025',
+  secret: process.env.SESSION_SECRET || 'ivtc-secret-key-2025',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false,     // set true only when using HTTPS
+    secure:   false,   // set true when using HTTPS
     httpOnly: true,
     sameSite: 'lax',
-    maxAge: 1000 * 60 * 60 * 8  // 8 hours
+    maxAge:   1000 * 60 * 60 * 8  // 8 hours
   }
 }));
 
-// 4. Static files — frontend folder served AFTER session is ready
+// Static files — serve frontend folder
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
-
-/* ============================================================
-   JSON FILE HELPERS
-============================================================ */
-function readJSON(filePath) {
-  try {
-    const raw = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(raw);
-  } catch (e) {
-    console.error('❌ Error reading file:', filePath, e.message);
-    return [];
-  }
-}
-
-function writeJSON(filePath, data) {
-  try {
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
-    return true;
-  } catch (e) {
-    console.error('❌ Error writing file:', filePath, e.message);
-    return false;
-  }
-}
-
-/* ============================================================
-   ADMIN CREDENTIALS
-============================================================ */
-const ADMIN = {
-  username: 'Itjareng',
-  password: 'itjareng70',
-  role: 'admin',
-  fullName: 'IVTC Administrator'
-};
 
 /* ============================================================
    AUTH MIDDLEWARE
@@ -138,6 +193,18 @@ function requireAdmin(req, res, next) {
 }
 
 /* ============================================================
+   HELPER — convert Mongoose doc to plain object for response
+============================================================ */
+function toObj(doc) {
+  if (!doc) return null;
+  const obj = doc.toObject ? doc.toObject() : doc;
+  obj.id = obj._id ? obj._id.toString() : obj.userId;
+  delete obj._id;
+  delete obj.__v;
+  return obj;
+}
+
+/* ============================================================
    ROUTE: GET /api/session
 ============================================================ */
 app.get('/api/session', (req, res) => {
@@ -148,10 +215,10 @@ app.get('/api/session', (req, res) => {
 });
 
 /* ============================================================
-   ROUTE: GET /api/data
+   ROUTE: GET /api/data  (serves itjareng.json — unchanged)
 ============================================================ */
 app.get('/api/data', (req, res) => {
-  const data = readJSON(ITJARENG_FILE);
+  const data = readItjareng();
   res.json({ success: true, data });
 });
 
@@ -174,58 +241,56 @@ app.post('/api/register', async (req, res) => {
       return res.json({ success: false, message: 'Password must be at least 6 characters.' });
     }
 
-    const users = readJSON(USERS_FILE);
-
-    if (users.find(u => u.username.toLowerCase() === username.toLowerCase())) {
+    // Check uniqueness in MongoDB
+    const existingUsername = await User.findOne({ username: username.toLowerCase() });
+    if (existingUsername) {
       return res.json({ success: false, message: 'That username is already taken.' });
     }
 
-    if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+    const existingEmail = await User.findOne({ email: email.toLowerCase() });
+    if (existingEmail) {
       return res.json({ success: false, message: 'An account with that email already exists.' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const userId = 'USR-' + Date.now();
 
-    const newUser = {
-      id: 'USR-' + Date.now(),
+    // Save user to MongoDB
+    const newUser = await User.create({
+      userId,
       firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      email: email.trim().toLowerCase(),
-      phone: phone.trim(),
+      lastName:  lastName.trim(),
+      email:     email.trim().toLowerCase(),
+      phone:     phone.trim(),
       gender,
-      username: username.trim().toLowerCase(),
-      password: hashedPassword,
-      registeredAt: new Date().toISOString(),
-      role: 'visitor'
-    };
-
-    users.push(newUser);
-    const saved = writeJSON(USERS_FILE, users);
-
-    if (!saved) {
-      return res.json({ success: false, message: 'Server error: could not save user.' });
-    }
-
-    const visitors = readJSON(VISITORS_FILE);
-    visitors.push({
-      userId: newUser.id,
-      username: newUser.username,
-      fullName: newUser.firstName + ' ' + newUser.lastName,
-      email: newUser.email,
-      phone: newUser.phone,
-      gender: newUser.gender,
-      registeredAt: newUser.registeredAt,
-      loginAt: null,
-      logoutAt: null,
-      status: 'registered'
+      username:  username.trim().toLowerCase(),
+      password:  hashedPassword,
+      role:      'visitor',
+      registeredAt: new Date()
     });
-    writeJSON(VISITORS_FILE, visitors);
+
+    // Save visitor log to MongoDB
+    await Visitor.create({
+      userId,
+      username:     newUser.username,
+      fullName:     newUser.firstName + ' ' + newUser.lastName,
+      email:        newUser.email,
+      phone:        newUser.phone,
+      gender:       newUser.gender,
+      registeredAt: newUser.registeredAt,
+      loginAt:      null,
+      logoutAt:     null,
+      status:       'registered'
+    });
 
     console.log(`✅ New user registered: ${newUser.username} (${newUser.email})`);
     return res.json({ success: true, message: 'Account created successfully!' });
 
   } catch (err) {
     console.error('Register error:', err);
+    if (err.code === 11000) {
+      return res.json({ success: false, message: 'Username or email already exists.' });
+    }
     return res.json({ success: false, message: 'Server error during registration.' });
   }
 });
@@ -246,22 +311,18 @@ app.post('/api/login', async (req, res) => {
       if (username !== ADMIN.username || password !== ADMIN.password) {
         return res.json({ success: false, message: 'Invalid admin credentials. Access denied.' });
       }
-
       req.session.user = {
-        role: 'admin',
+        role:     'admin',
         username: ADMIN.username,
         fullName: ADMIN.fullName,
-        loginAt: new Date().toISOString()
+        loginAt:  new Date().toISOString()
       };
-
       console.log(`🔐 Admin logged in: ${new Date().toLocaleString()}`);
       return res.json({ success: true, role: 'admin', redirect: 'admin.html' });
     }
 
-    // VISITOR LOGIN
-    const users = readJSON(USERS_FILE);
-    const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
-
+    // VISITOR LOGIN — find in MongoDB
+    const user = await User.findOne({ username: username.toLowerCase() });
     if (!user) {
       return res.json({ success: false, message: 'No account found with that username.' });
     }
@@ -271,39 +332,24 @@ app.post('/api/login', async (req, res) => {
       return res.json({ success: false, message: 'Incorrect password. Please try again.' });
     }
 
-    const loginTime = new Date().toISOString();
-    const visitors = readJSON(VISITORS_FILE);
-    const vRec = [...visitors].reverse().find(v => v.userId === user.id);
+    const loginTime = new Date();
 
-    if (vRec) {
-      vRec.loginAt  = loginTime;
-      vRec.logoutAt = null;
-      vRec.status   = 'online';
-    } else {
-      visitors.push({
-        userId: user.id,
-        username: user.username,
-        fullName: user.firstName + ' ' + user.lastName,
-        email: user.email,
-        phone: user.phone,
-        gender: user.gender,
-        registeredAt: user.registeredAt,
-        loginAt: loginTime,
-        logoutAt: null,
-        status: 'online'
-      });
-    }
-    writeJSON(VISITORS_FILE, visitors);
+    // Update visitor log in MongoDB
+    await Visitor.findOneAndUpdate(
+      { userId: user.userId },
+      { loginAt: loginTime, logoutAt: null, status: 'online' },
+      { upsert: true, new: true }
+    );
 
     req.session.user = {
-      role: 'visitor',
-      userId: user.id,
+      role:     'visitor',
+      userId:   user.userId,
       username: user.username,
       fullName: user.firstName + ' ' + user.lastName,
-      loginAt: loginTime
+      loginAt:  loginTime.toISOString()
     };
 
-    console.log(`👤 Visitor logged in: ${user.username} at ${loginTime}`);
+    console.log(`👤 Visitor logged in: ${user.username} at ${loginTime.toISOString()}`);
     return res.json({ success: true, role: 'visitor', redirect: 'index.html' });
 
   } catch (err) {
@@ -315,7 +361,7 @@ app.post('/api/login', async (req, res) => {
 /* ============================================================
    ROUTE: POST /api/logout
 ============================================================ */
-app.post('/api/logout', (req, res) => {
+app.post('/api/logout', async (req, res) => {
   if (!req.session || !req.session.user) {
     return res.json({ success: true, message: 'Already logged out.' });
   }
@@ -324,16 +370,15 @@ app.post('/api/logout', (req, res) => {
 
   if (user.role === 'visitor' && user.userId) {
     try {
-      const logoutTime = new Date().toISOString();
-      const visitors = readJSON(VISITORS_FILE);
-      const vRec = [...visitors].reverse().find(v => v.userId === user.userId);
-      if (vRec) {
-        vRec.logoutAt = logoutTime;
-        vRec.status   = 'offline';
-        writeJSON(VISITORS_FILE, visitors);
-      }
-      console.log(`👤 Visitor logged out: ${user.username} at ${logoutTime}`);
-    } catch (e) {}
+      const logoutTime = new Date();
+      await Visitor.findOneAndUpdate(
+        { userId: user.userId },
+        { logoutAt: logoutTime, status: 'offline' }
+      );
+      console.log(`👤 Visitor logged out: ${user.username} at ${logoutTime.toISOString()}`);
+    } catch (e) {
+      console.error('Logout visitor update error:', e.message);
+    }
   }
 
   if (user.role === 'admin') {
@@ -346,8 +391,9 @@ app.post('/api/logout', (req, res) => {
 
 /* ============================================================
    ROUTE: POST /api/application
+   Submit new application — saves to MongoDB
 ============================================================ */
-app.post('/api/application', requireLogin, (req, res) => {
+app.post('/api/application', requireLogin, async (req, res) => {
   try {
     const data = req.body;
 
@@ -355,22 +401,18 @@ app.post('/api/application', requireLogin, (req, res) => {
       return res.json({ success: false, message: 'Required application fields are missing.' });
     }
 
-    data.applicationId       = 'IVTC-' + Date.now().toString(36).toUpperCase();
-    data.timestamp           = new Date().toISOString();
-    data.submittedByUserId   = req.session.user.userId   || null;
-    data.submittedByUsername = req.session.user.username || null;
+    const applicationId = 'IVTC-' + Date.now().toString(36).toUpperCase();
 
-    const apps  = readJSON(APPS_FILE);
-    apps.push(data);
-    const saved = writeJSON(APPS_FILE, apps);
+    await Application.create({
+      ...data,
+      applicationId,
+      timestamp:           new Date(),
+      submittedByUserId:   req.session.user.userId   || null,
+      submittedByUsername: req.session.user.username || null
+    });
 
-    if (!saved) {
-      return res.json({ success: false, message: 'Could not save application. Please try again.' });
-    }
-
-    console.log(`📋 New application: ${data.applicationId} by ${data.first_name} ${data.last_name}`);
-    console.log(`📊 Total applications now: ${apps.length}`);
-    return res.json({ success: true, applicationId: data.applicationId });
+    console.log(`📋 New application: ${applicationId} by ${data.first_name} ${data.last_name}`);
+    return res.json({ success: true, applicationId });
 
   } catch (err) {
     console.error('Application error:', err);
@@ -380,15 +422,18 @@ app.post('/api/application', requireLogin, (req, res) => {
 
 /* ============================================================
    ROUTE: GET /api/my-applications
+   Visitor fetches their OWN applications only
 ============================================================ */
-app.get('/api/my-applications', requireLogin, (req, res) => {
+app.get('/api/my-applications', requireLogin, async (req, res) => {
   try {
-    const userId = req.session.user.userId;
-    const username = req.session.user.username;
-    const apps = readJSON(APPS_FILE).filter(a =>
-      a.submittedByUserId === userId || a.submittedByUsername === username
-    );
-    return res.json({ success: true, data: apps });
+    const apps = await Application.find({
+      $or: [
+        { submittedByUserId: req.session.user.userId },
+        { submittedByUsername: req.session.user.username }
+      ]
+    }).sort({ timestamp: -1 });
+
+    return res.json({ success: true, data: apps.map(toObj) });
   } catch (err) {
     console.error('My-applications error:', err);
     return res.json({ success: false, message: 'Server error fetching your applications.' });
@@ -397,21 +442,13 @@ app.get('/api/my-applications', requireLogin, (req, res) => {
 
 /* ============================================================
    ROUTE: PUT /api/my-applications/:id
+   Visitor edits their OWN application
 ============================================================ */
-app.put('/api/my-applications/:id', requireLogin, (req, res) => {
+app.put('/api/my-applications/:id', requireLogin, async (req, res) => {
   try {
-    const appId  = req.params.id;
-    const userId = req.session.user.userId;
+    const appId    = req.params.id;
+    const userId   = req.session.user.userId;
     const username = req.session.user.username;
-    const apps   = readJSON(APPS_FILE);
-    const idx    = apps.findIndex(a =>
-      a.applicationId === appId &&
-      (a.submittedByUserId === userId || a.submittedByUsername === username)
-    );
-
-    if (idx === -1) {
-      return res.json({ success: false, message: 'Application not found or access denied.' });
-    }
 
     const allowed = [
       'first_name','last_name','phone','email','address','district',
@@ -421,16 +458,29 @@ app.put('/api/my-applications/:id', requireLogin, (req, res) => {
       'motivation','heard_from'
     ];
 
+    const updates = {};
     allowed.forEach(field => {
-      if (req.body[field] !== undefined) {
-        apps[idx][field] = req.body[field];
-      }
+      if (req.body[field] !== undefined) updates[field] = req.body[field];
     });
+    updates.lastEditedAt = new Date();
+    updates.lastEditedBy = username;
 
-    apps[idx].lastEditedAt = new Date().toISOString();
-    apps[idx].lastEditedBy = req.session.user.username;
+    const result = await Application.findOneAndUpdate(
+      {
+        applicationId: appId,
+        $or: [
+          { submittedByUserId: userId },
+          { submittedByUsername: username }
+        ]
+      },
+      { $set: updates },
+      { new: true }
+    );
 
-    writeJSON(APPS_FILE, apps);
+    if (!result) {
+      return res.json({ success: false, message: 'Application not found or access denied.' });
+    }
+
     console.log(`✏️ Visitor edited own application: ${appId} by ${username}`);
     return res.json({ success: true, message: 'Application updated successfully.' });
 
@@ -442,23 +492,26 @@ app.put('/api/my-applications/:id', requireLogin, (req, res) => {
 
 /* ============================================================
    ROUTE: DELETE /api/my-applications/:id
+   Visitor deletes their OWN application
 ============================================================ */
-app.delete('/api/my-applications/:id', requireLogin, (req, res) => {
+app.delete('/api/my-applications/:id', requireLogin, async (req, res) => {
   try {
-    const appId  = req.params.id;
-    const userId = req.session.user.userId;
+    const appId    = req.params.id;
+    const userId   = req.session.user.userId;
     const username = req.session.user.username;
-    const apps   = readJSON(APPS_FILE);
-    const filtered = apps.filter(a =>
-      !(a.applicationId === appId &&
-        (a.submittedByUserId === userId || a.submittedByUsername === username))
-    );
 
-    if (filtered.length === apps.length) {
+    const result = await Application.findOneAndDelete({
+      applicationId: appId,
+      $or: [
+        { submittedByUserId: userId },
+        { submittedByUsername: username }
+      ]
+    });
+
+    if (!result) {
       return res.json({ success: false, message: 'Application not found or access denied.' });
     }
 
-    writeJSON(APPS_FILE, filtered);
     console.log(`🗑️ Visitor deleted own application: ${appId} by ${username}`);
     return res.json({ success: true, message: 'Application withdrawn successfully.' });
 
@@ -469,53 +522,66 @@ app.delete('/api/my-applications/:id', requireLogin, (req, res) => {
 });
 
 /* ============================================================
-   ADMIN ROUTES
+   ADMIN ROUTES — all require admin session
 ============================================================ */
 
 // GET all visitors
-app.get('/api/admin/visitors', requireAdmin, (req, res) => {
-  const visitors = readJSON(VISITORS_FILE);
-  console.log(`📊 Admin fetched ${visitors.length} visitors`);
-  res.json({ success: true, data: visitors });
+app.get('/api/admin/visitors', requireAdmin, async (req, res) => {
+  try {
+    const visitors = await Visitor.find().sort({ registeredAt: -1 });
+    console.log(`📊 Admin fetched ${visitors.length} visitors`);
+    res.json({ success: true, data: visitors.map(toObj) });
+  } catch (err) {
+    res.json({ success: false, message: 'Error fetching visitors.' });
+  }
 });
 
-// GET all users
-app.get('/api/admin/users', requireAdmin, (req, res) => {
-  const users = readJSON(USERS_FILE).map(u => {
-    const { password, ...safe } = u;
-    return safe;
-  });
-  console.log(`📊 Admin fetched ${users.length} users`);
-  res.json({ success: true, data: users });
+// GET all users (no password)
+app.get('/api/admin/users', requireAdmin, async (req, res) => {
+  try {
+    const users = await User.find({}, { password: 0 }).sort({ registeredAt: -1 });
+    console.log(`📊 Admin fetched ${users.length} users`);
+    res.json({ success: true, data: users.map(toObj) });
+  } catch (err) {
+    res.json({ success: false, message: 'Error fetching users.' });
+  }
 });
 
 // GET all applications
-app.get('/api/admin/applications', requireAdmin, (req, res) => {
-  const apps = readJSON(APPS_FILE);
-  console.log(`📊 Admin fetched ${apps.length} applications`);
-  res.json({ success: true, data: apps });
+app.get('/api/admin/applications', requireAdmin, async (req, res) => {
+  try {
+    const apps = await Application.find().sort({ timestamp: -1 });
+    console.log(`📊 Admin fetched ${apps.length} applications`);
+    res.json({ success: true, data: apps.map(toObj) });
+  } catch (err) {
+    res.json({ success: false, message: 'Error fetching applications.' });
+  }
 });
 
 // PUT edit an application (admin)
-app.put('/api/admin/applications/:id', requireAdmin, (req, res) => {
+app.put('/api/admin/applications/:id', requireAdmin, async (req, res) => {
   try {
     const appId = req.params.id;
-    const apps  = readJSON(APPS_FILE);
-    const idx   = apps.findIndex(a => a.applicationId === appId);
+    const updates = {
+      ...req.body,
+      lastEditedAt: new Date(),
+      lastEditedBy: 'Admin'
+    };
+    // Never allow overwriting these
+    delete updates.applicationId;
+    delete updates._id;
+    delete updates.__v;
 
-    if (idx === -1) {
+    const result = await Application.findOneAndUpdate(
+      { applicationId: appId },
+      { $set: updates },
+      { new: true }
+    );
+
+    if (!result) {
       return res.json({ success: false, message: 'Application not found.' });
     }
 
-    apps[idx] = {
-      ...apps[idx],
-      ...req.body,
-      applicationId: appId,
-      lastEditedAt: new Date().toISOString(),
-      lastEditedBy: 'Admin'
-    };
-
-    writeJSON(APPS_FILE, apps);
     console.log(`✏️ Admin edited application: ${appId}`);
     return res.json({ success: true, message: 'Application updated.' });
 
@@ -526,20 +592,14 @@ app.put('/api/admin/applications/:id', requireAdmin, (req, res) => {
 });
 
 // DELETE an application (admin)
-app.delete('/api/admin/applications/:id', requireAdmin, (req, res) => {
+app.delete('/api/admin/applications/:id', requireAdmin, async (req, res) => {
   try {
-    const appId    = req.params.id;
-    const apps     = readJSON(APPS_FILE);
-    const filtered = apps.filter(a => a.applicationId !== appId);
-
-    if (filtered.length === apps.length) {
+    const result = await Application.findOneAndDelete({ applicationId: req.params.id });
+    if (!result) {
       return res.json({ success: false, message: 'Application not found.' });
     }
-
-    writeJSON(APPS_FILE, filtered);
-    console.log(`🗑️ Admin deleted application: ${appId}`);
+    console.log(`🗑️ Admin deleted application: ${req.params.id}`);
     return res.json({ success: true, message: 'Application deleted.' });
-
   } catch (err) {
     console.error('Delete application error:', err);
     return res.json({ success: false, message: 'Server error deleting application.' });
@@ -547,36 +607,38 @@ app.delete('/api/admin/applications/:id', requireAdmin, (req, res) => {
 });
 
 // PUT edit a user (admin)
-app.put('/api/admin/users/:id', requireAdmin, (req, res) => {
+app.put('/api/admin/users/:id', requireAdmin, async (req, res) => {
   try {
-    const userId = req.params.id;
-    const users  = readJSON(USERS_FILE);
-    const idx    = users.findIndex(u => u.id === userId);
+    const userId  = req.params.id;
+    const allowed = ['firstName','lastName','email','phone','gender','username'];
+    const updates = { lastEditedAt: new Date() };
+    allowed.forEach(field => {
+      if (req.body[field] !== undefined) updates[field] = req.body[field];
+    });
 
-    if (idx === -1) {
+    const updatedUser = await User.findOneAndUpdate(
+      { userId },
+      { $set: updates },
+      { new: true }
+    );
+
+    if (!updatedUser) {
       return res.json({ success: false, message: 'User not found.' });
     }
 
-    const allowed = ['firstName','lastName','email','phone','gender','username'];
-    allowed.forEach(field => {
-      if (req.body[field] !== undefined) {
-        users[idx][field] = req.body[field];
+    // Sync visitor log
+    await Visitor.findOneAndUpdate(
+      { userId },
+      {
+        $set: {
+          fullName: updatedUser.firstName + ' ' + updatedUser.lastName,
+          email:    updatedUser.email,
+          phone:    updatedUser.phone,
+          gender:   updatedUser.gender,
+          username: updatedUser.username
+        }
       }
-    });
-
-    users[idx].lastEditedAt = new Date().toISOString();
-    writeJSON(USERS_FILE, users);
-
-    const visitors = readJSON(VISITORS_FILE);
-    const vRec = visitors.find(v => v.userId === userId);
-    if (vRec) {
-      vRec.fullName = (req.body.firstName || users[idx].firstName) + ' ' + (req.body.lastName || users[idx].lastName);
-      vRec.email    = req.body.email  || vRec.email;
-      vRec.phone    = req.body.phone  || vRec.phone;
-      vRec.gender   = req.body.gender || vRec.gender;
-      vRec.username = req.body.username || vRec.username;
-      writeJSON(VISITORS_FILE, visitors);
-    }
+    );
 
     console.log(`✏️ Admin edited user: ${userId}`);
     return res.json({ success: true, message: 'User updated.' });
@@ -588,35 +650,37 @@ app.put('/api/admin/users/:id', requireAdmin, (req, res) => {
 });
 
 // DELETE a user (admin)
-app.delete('/api/admin/users/:id', requireAdmin, (req, res) => {
+app.delete('/api/admin/users/:id', requireAdmin, async (req, res) => {
   try {
-    const userId  = req.params.id;
-    const users   = readJSON(USERS_FILE).filter(u => u.id !== userId);
-    const visitors = readJSON(VISITORS_FILE).filter(v => v.userId !== userId);
-    writeJSON(USERS_FILE, users);
-    writeJSON(VISITORS_FILE, visitors);
+    const userId = req.params.id;
+    await User.findOneAndDelete({ userId });
+    await Visitor.findOneAndDelete({ userId });
     console.log(`🗑️ Admin deleted user: ${userId}`);
     return res.json({ success: true, message: 'User deleted.' });
   } catch (err) {
+    console.error('Delete user error:', err);
     return res.json({ success: false, message: 'Server error deleting user.' });
   }
 });
 
 // GET dashboard stats
-app.get('/api/admin/stats', requireAdmin, (req, res) => {
-  const visitors = readJSON(VISITORS_FILE);
-  const users    = readJSON(USERS_FILE);
-  const apps     = readJSON(APPS_FILE);
-  const online   = visitors.filter(v => v.status === 'online').length;
-  res.json({
-    success: true,
-    stats: {
-      totalVisitors:      visitors.length,
-      onlineNow:          online,
-      totalUsers:         users.length,
-      totalApplications:  apps.length
-    }
-  });
+app.get('/api/admin/stats', requireAdmin, async (req, res) => {
+  try {
+    const [totalVisitors, onlineNow, totalUsers, totalApplications] = await Promise.all([
+      Visitor.countDocuments(),
+      Visitor.countDocuments({ status: 'online' }),
+      User.countDocuments(),
+      Application.countDocuments()
+    ]);
+
+    res.json({
+      success: true,
+      stats: { totalVisitors, onlineNow, totalUsers, totalApplications }
+    });
+  } catch (err) {
+    console.error('Stats error:', err);
+    res.json({ success: false, message: 'Error fetching stats.' });
+  }
 });
 
 /* ============================================================
@@ -630,12 +694,8 @@ app.listen(PORT, () => {
   console.log('║   Open this URL in your browser          ║');
   console.log('╚══════════════════════════════════════════╝');
   console.log('');
-  console.log('📁 Data files:');
-  console.log('   users.json        →', USERS_FILE);
-  console.log('   visitors.json     →', VISITORS_FILE);
-  console.log('   applications.json →', APPS_FILE);
-  console.log('');
-  console.log(`📋 Applications in file: ${readJSON(APPS_FILE).length}`);
+  console.log('🍃 Storage: MongoDB Atlas (cloud database)');
+  console.log('📄 Content: data/itjareng.json (unchanged)');
   console.log('');
   console.log('🔐 Admin login: username=Itjareng  password=itjareng70');
   console.log('');
