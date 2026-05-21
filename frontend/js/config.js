@@ -6,7 +6,7 @@ const DEV_API_URL = 'http://localhost:3000';
 
 // For production (will be replaced during build or set in Vercel)
 // Replace with your Render backend URL after deployment
-const PROD_API_URL = 'https://YOUR-BACKEND-URL.onrender.com';
+const PROD_API_URL = 'https://itjareng-vtc.onrender.com';
 
 // Automatically detect environment
 const API_BASE_URL = (() => {
