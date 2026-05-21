@@ -143,7 +143,8 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5500',
   'http://127.0.0.1:5500',
-  'http://127.0.0.1:3000'
+  'http://127.0.0.1:3000',
+  'https://itjareng-vtc.vercel.app'  // add this
 ];
 app.use(cors({
   origin: function(origin, callback) {
