@@ -166,9 +166,9 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure:   false,   // set true when using HTTPS
+    secure:   true,        // MUST be true for HTTPS (Render provides HTTPS)
     httpOnly: true,
-    sameSite: 'lax',
+    sameSite: 'none',      // MUST be 'none' for cross-domain (Vercel frontend, Render backend)
     maxAge:   1000 * 60 * 60 * 8  // 8 hours
   }
 }));
